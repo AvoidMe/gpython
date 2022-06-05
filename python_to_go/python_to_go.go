@@ -10,7 +10,7 @@ import (
 type PythonBytecode struct {
 	Opcode         int
 	Opname         string
-	Arg            string
+	Arg            int
 	Argval         *string
 	Offset         int
 	Is_jump_target bool
@@ -22,7 +22,7 @@ func LoadJson() []opcode.Opcode {
 	dat, _ := os.ReadFile("output.json")
 	json.Unmarshal(dat, &bytecode)
 	for _, value := range bytecode {
-		op := opcode.Opcode{Command: value.Opcode}
+		op := opcode.Opcode{Command: value.Opcode, Arg: value.Arg}
 		if value.Argval != nil {
 			op.Args = []pyobject.PyObject{
 				{Value: *value.Argval},

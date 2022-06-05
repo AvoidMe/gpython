@@ -9,32 +9,42 @@ import (
 	pythontogo "main/python_to_go"
 )
 
-func popFromStack(stack *[]pyobject.PyObject) pyobject.PyObject {
+func pop(stack *[]pyobject.PyObject) pyobject.PyObject {
 	s := *stack
 	value := s[len(s)-1]
 	*stack = s[:len(s)-1]
 	return value
 }
 
+func popN(stack *[]pyobject.PyObject, n int) []pyobject.PyObject {
+	s := *stack
+	values := s[len(s)-n:]
+	*stack = s[:len(s)-n]
+	return values
+}
+
 func evalLoop(frame []opcode.Opcode) {
 	stack := []pyobject.PyObject{}
-	for _, value := range frame {
+	for _, instruction := range frame {
 		log.Printf("Stack: %v\n", stack)
-		log.Printf("Evaluating opcode: %v\n", value)
-		switch value.Command {
+		log.Printf("Evaluating instruction: %v\n", instruction)
+		switch instruction.Command {
+		case opcode.POP_TOP:
+			pop(&stack)
 		case opcode.LOAD_CONST:
-			stack = append(stack, value.Args[0])
+			stack = append(stack, instruction.Args[0])
 		case opcode.LOAD_NAME:
-			stack = append(stack, pyobject.PyObject{Function: builtin.Builtin[value.Args[0].Value]})
+			stack = append(stack, pyobject.PyObject{Function: builtin.Builtin[instruction.Args[0].Value]})
 		case opcode.CALL_FUNCTION:
-			argument := popFromStack(&stack)
-			function := popFromStack(&stack)
-			called_func := function.Function.(func(pyobject.PyObject))
-			called_func(argument)
+			args := pyobject.PyObject{Tuple: popN(&stack, instruction.Arg)}
+			function := pop(&stack)
+			called_func := function.Function.(func(*pyobject.PyObject, *pyobject.PyObject) pyobject.PyObject)
+			result := called_func(&args, &pyobject.None)
+			stack = append(stack, result)
 		case opcode.RETURN_VALUE:
 			log.Println("RETURN_VALUE is not implemented")
 		default:
-			log.Printf("Undefined opcode: %v\n", value)
+			log.Printf("Undefined opcode: %v\n", instruction)
 		}
 	}
 }
