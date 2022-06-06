@@ -21,6 +21,7 @@ def main():
     source_content = open(args.source_file, "r").read()
     bytecode = []
     for instruction in dis.get_instructions(source_content):
+        # print(instruction)
         bytecode.append(
             {
                 "opcode": instruction.opcode,

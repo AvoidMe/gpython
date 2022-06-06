@@ -1,9 +1,7 @@
 package pyobject
 
 type PyObject struct {
-	Value    string
-	Tuple    []PyObject
-	Function interface{}
+	Value interface{}
 }
 
 var None = PyObject{}
