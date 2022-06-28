@@ -15,6 +15,13 @@ func GPythonPrint(args pyobject.PyObject, kwnames pyobject.PyObject) pyobject.Py
 	return pyobject.None
 }
 
+type Printable interface {
+	String() string
+}
+
+type Repr interface {
+}
+
 // https://github.com/python/cpython/blob/main/Python/bltinmodule.c#L1987 (builtin_print_impl)
 func GPythonPrintImplementation(
 	args pyobject.PyObject,
@@ -25,12 +32,8 @@ func GPythonPrintImplementation(
 ) {
 	list := args.Value.(gpythonlist.GpythonList).List
 	for _, arg := range list {
-		innerList, success := arg.Value.(gpythonlist.GpythonList)
-		if success {
-			fmt.Print(innerList.String())
-		} else {
-			fmt.Print(arg.Value)
-		}
+		value := arg.Value.(Printable)
+		fmt.Print(value.String())
 		fmt.Print(sep.Value)
 	}
 	fmt.Print(end.Value)

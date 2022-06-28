@@ -1,6 +1,3 @@
-// TODO: I decided to remove all of the pointers,
-// since I obviously fucked up somewhere with them,
-// I need to have a better understanding of it before using it aggressively
 package main
 
 import (
@@ -8,6 +5,7 @@ import (
 	"log"
 	"main/builtin"
 	gpythonlist "main/g_python_list"
+	gpythonstring "main/g_python_string"
 	"main/opcode"
 	"main/pyobject"
 	pythontogo "main/python_to_go"
@@ -25,7 +23,12 @@ func evalFrame(frame []opcode.Instruction) pyobject.PyObject {
 		case opcode.LOAD_CONST:
 			stack.Append(instruction.Args[0])
 		case opcode.LOAD_NAME:
-			stack.Append(pyobject.PyObject{Value: builtin.Builtin[instruction.Args[0].Value.(string)]})
+			name := instruction.Args[0].Value.(gpythonstring.GpythonString)
+			stack.Append(
+				pyobject.PyObject{
+					Value: builtin.Builtin[name.Str],
+				},
+			)
 		case opcode.BUILD_LIST:
 			stack.Append(
 				pyobject.PyObject{
@@ -33,18 +36,15 @@ func evalFrame(frame []opcode.Instruction) pyobject.PyObject {
 				},
 			)
 		case opcode.CALL_FUNCTION:
-			listArgs := stack.PopN(instruction.Arg)
-			args := pyobject.PyObject{Value: gpythonlist.GpythonList{List: listArgs}}
-			function := stack.Pop()
-			called_func := function.Value.(func(pyobject.PyObject, pyobject.PyObject) pyobject.PyObject)
-			result := called_func(args, pyobject.None)
-			stack.Append(result)
+			args := pyobject.PyObject{
+				Value: gpythonlist.GpythonList{List: stack.PopN(instruction.Arg)},
+			}
+			function := stack.Pop().Value.(func(pyobject.PyObject, pyobject.PyObject) pyobject.PyObject)
+			stack.Append(function(args, pyobject.None))
 		case opcode.LIST_EXTEND:
-			value := stack.Pop()
-			list := stack.Pop()
-			argToExtend := value.Value.(gpythonlist.GpythonList)
-			realList := list.Value.(gpythonlist.GpythonList)
-			realList.Extend(argToExtend.List)
+			args := stack.Pop().Value.(gpythonlist.GpythonList)
+			list := stack.Pop().Value.(gpythonlist.GpythonList)
+			list.Extend(args.List)
 		case opcode.RETURN_VALUE:
 			returnValue = stack.Pop()
 		default:

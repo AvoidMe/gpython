@@ -3,6 +3,7 @@ package pythontogo
 import (
 	"encoding/json"
 	gpythonlist "main/g_python_list"
+	gpythonstring "main/g_python_string"
 	"main/opcode"
 	"main/pyobject"
 	"os"
@@ -26,11 +27,11 @@ func LoadJson() []opcode.Instruction {
 	for _, value := range bytecode {
 		op := opcode.Instruction{Opcode: value.Opcode, Arg: value.Arg}
 		if value.Argval != nil {
+			// TODO: move reflect to switch type?
 			switch reflect.TypeOf(value.Argval).Kind() {
 			case reflect.String:
-				str := value.Argval.(string)
 				op.Args = []pyobject.PyObject{
-					{Value: str},
+					{Value: gpythonstring.GpythonString{Str: value.Argval.(string)}},
 				}
 			case reflect.Slice:
 				s := reflect.ValueOf(value.Argval)
