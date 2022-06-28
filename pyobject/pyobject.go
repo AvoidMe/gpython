@@ -1,7 +1,18 @@
 package pyobject
 
-type PyObject struct {
-	Value interface{}
+type PyObject interface {
+	Repr() string
+	String() string
 }
 
-var None = PyObject{}
+type NoneType struct{}
+
+func (NoneType) Repr() string {
+	return "None"
+}
+
+func (NoneType) String() string {
+	return "None"
+}
+
+var None = NoneType{}

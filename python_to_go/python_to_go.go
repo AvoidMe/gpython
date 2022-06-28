@@ -7,7 +7,6 @@ import (
 	"main/opcode"
 	"main/pyobject"
 	"os"
-	"reflect"
 )
 
 type PythonBytecode struct {
@@ -27,27 +26,18 @@ func LoadJson() []opcode.Instruction {
 	for _, value := range bytecode {
 		op := opcode.Instruction{Opcode: value.Opcode, Arg: value.Arg}
 		if value.Argval != nil {
-			// TODO: move reflect to switch type?
-			switch reflect.TypeOf(value.Argval).Kind() {
-			case reflect.String:
-				op.Args = []pyobject.PyObject{
-					{Value: gpythonstring.GpythonString{Str: value.Argval.(string)}},
-				}
-			case reflect.Slice:
-				s := reflect.ValueOf(value.Argval)
+			switch v := value.Argval.(type) {
+			case string:
+				op.Args = gpythonstring.GpythonString{Str: v}
+			case []interface{}:
 				list := gpythonlist.GpythonList{List: []pyobject.PyObject{}}
-				for i := 0; i < s.Len(); i++ {
-					str := s.Index(i).Interface().(string)
-					list.Append(pyobject.PyObject{Value: str})
+				for i := 0; i < len(v); i++ {
+					list.Append(gpythonstring.GpythonString{Str: v[i].(string)})
 				}
-				op.Args = []pyobject.PyObject{
-					{Value: list},
-				}
+				op.Args = list
 			}
 		} else {
-			op.Args = []pyobject.PyObject{
-				pyobject.None,
-			}
+			op.Args = pyobject.None
 		}
 		output = append(output, op)
 	}

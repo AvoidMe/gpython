@@ -1,8 +1,6 @@
 package gpythonlist
 
 import (
-	"fmt"
-	gpythonstring "main/g_python_string"
 	"main/pyobject"
 )
 
@@ -34,15 +32,14 @@ func (v *GpythonList) Extend(values []pyobject.PyObject) {
 func (v GpythonList) String() string {
 	result := "["
 	for index, arg := range v.List {
-		switch value := arg.Value.(type) {
-		case GpythonList:
-			result += value.String()
-		case gpythonstring.GpythonString:
-			result += fmt.Sprintf("\"%s\"", value.Str)
-		}
+		result += arg.Repr()
 		if index != len(v.List)-1 {
 			result += ", "
 		}
 	}
 	return result + "]"
+}
+
+func (v GpythonList) Repr() string {
+	return v.String()
 }

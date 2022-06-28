@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"log"
 	"main/builtin"
+	gpythonfunction "main/g_python_function"
 	gpythonlist "main/g_python_list"
 	gpythonstring "main/g_python_string"
 	"main/opcode"
@@ -21,29 +22,23 @@ func evalFrame(frame []opcode.Instruction) pyobject.PyObject {
 		case opcode.POP_TOP:
 			stack.Pop()
 		case opcode.LOAD_CONST:
-			stack.Append(instruction.Args[0])
+			stack.Append(instruction.Args)
 		case opcode.LOAD_NAME:
-			name := instruction.Args[0].Value.(gpythonstring.GpythonString)
+			name := instruction.Args.(gpythonstring.GpythonString)
 			stack.Append(
-				pyobject.PyObject{
-					Value: builtin.Builtin[name.Str],
-				},
+				builtin.Builtin[name.Str],
 			)
 		case opcode.BUILD_LIST:
 			stack.Append(
-				pyobject.PyObject{
-					Value: gpythonlist.GpythonList{List: stack.PopN(instruction.Arg)},
-				},
+				gpythonlist.GpythonList{List: stack.PopN(instruction.Arg)},
 			)
 		case opcode.CALL_FUNCTION:
-			args := pyobject.PyObject{
-				Value: gpythonlist.GpythonList{List: stack.PopN(instruction.Arg)},
-			}
-			function := stack.Pop().Value.(func(pyobject.PyObject, pyobject.PyObject) pyobject.PyObject)
-			stack.Append(function(args, pyobject.None))
+			args := gpythonlist.GpythonList{List: stack.PopN(instruction.Arg)}
+			function := stack.Pop().(gpythonfunction.GPythonFunction)
+			stack.Append(function.Callable(args, pyobject.None))
 		case opcode.LIST_EXTEND:
-			args := stack.Pop().Value.(gpythonlist.GpythonList)
-			list := stack.Pop().Value.(gpythonlist.GpythonList)
+			args := stack.Pop().(gpythonlist.GpythonList)
+			list := stack.Pop().(gpythonlist.GpythonList)
 			list.Extend(args.List)
 		case opcode.RETURN_VALUE:
 			returnValue = stack.Pop()

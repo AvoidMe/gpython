@@ -7,3 +7,7 @@ type GpythonString struct {
 func (v GpythonString) String() string {
 	return v.Str
 }
+
+func (v GpythonString) Repr() string {
+	return "'" + v.Str + "'"
+}
