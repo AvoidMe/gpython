@@ -15,19 +15,38 @@ import (
 func evalFrame(frame []opcode.Instruction) pyobject.PyObject {
 	var returnValue pyobject.PyObject
 	stack := gpythonlist.GpythonList{}
+	locals := map[string]pyobject.PyObject{}
 	for _, instruction := range frame {
 		log.Printf("Stack: %v\n", stack)
 		log.Printf("Evaluating instruction: %v\n", instruction)
 		switch instruction.Opcode {
 		case opcode.POP_TOP:
 			stack.Pop()
+		case opcode.BINARY_ADD:
+			// Main idea for custom objects is:
+			//	handle error while casting like this:
+			//	 a, err := stack.Pop().(pyobject.PybinaryAdd)
+			//	if error occurs, than assume __dict__ has __add__ method,
+			//  else: print same error as cpython does
+			a := stack.Pop().(pyobject.PyBinaryAdd) // TODO: error handling
+			b := stack.Pop().(pyobject.PyBinaryAdd) // TODO: error handling
+			result := b.BinaryAdd(a)                // TODO: error handling
+			stack.Append(result)
+		case opcode.STORE_NAME:
+			value := stack.Pop()
+			locals[instruction.Args.(gpythonstring.GpythonString).Str] = value
 		case opcode.LOAD_CONST:
 			stack.Append(instruction.Args)
 		case opcode.LOAD_NAME:
 			name := instruction.Args.(gpythonstring.GpythonString)
-			stack.Append(
-				builtin.Builtin[name.Str],
-			)
+			value, success := locals[name.Str]
+			if success {
+				stack.Append(value)
+			} else {
+				stack.Append(
+					builtin.Builtin[name.Str],
+				)
+			}
 		case opcode.BUILD_LIST:
 			stack.Append(
 				gpythonlist.GpythonList{List: stack.PopN(instruction.Arg)},
@@ -40,6 +59,7 @@ func evalFrame(frame []opcode.Instruction) pyobject.PyObject {
 			args := stack.Pop().(gpythonlist.GpythonList)
 			list := stack.Pop().(gpythonlist.GpythonList)
 			list.Extend(args.List)
+			stack.Append(list)
 		case opcode.RETURN_VALUE:
 			returnValue = stack.Pop()
 		default:

@@ -29,6 +29,7 @@ def main():
                 "arg": instruction.arg,
                 "argval": instruction.argval,
                 "offset": instruction.offset,
+                "argrepr": instruction.argrepr,
                 "is_jump_target": instruction.is_jump_target,
             }
         )

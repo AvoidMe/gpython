@@ -5,6 +5,12 @@ type PyObject interface {
 	String() string
 }
 
+// Interface, which indicates what object has __add__ method
+type PyBinaryAdd interface {
+	PyObject
+	BinaryAdd(PyObject) PyObject
+}
+
 type NoneType struct{}
 
 func (NoneType) Repr() string {

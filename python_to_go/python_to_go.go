@@ -3,10 +3,12 @@ package pythontogo
 import (
 	"encoding/json"
 	gpythonlist "main/g_python_list"
+	gpythonnumber "main/g_python_number"
 	gpythonstring "main/g_python_string"
 	"main/opcode"
 	"main/pyobject"
 	"os"
+	"strings"
 )
 
 type PythonBytecode struct {
@@ -14,6 +16,7 @@ type PythonBytecode struct {
 	Opname         string
 	Arg            int
 	Argval         interface{}
+	Argrepr        string
 	Offset         int
 	Is_jump_target bool
 }
@@ -29,6 +32,15 @@ func LoadJson() []opcode.Instruction {
 			switch v := value.Argval.(type) {
 			case string:
 				op.Args = gpythonstring.GpythonString{Str: v}
+			case float64:
+				// Golang unmarshal treats every JSON number as float64:
+				// https://pkg.go.dev/encoding/json#Unmarshal
+				// Here we're trying to check if source value was int or float
+				if strings.Contains(value.Argrepr, ".") {
+					op.Args = gpythonnumber.GpythonFloat{Float: v}
+				} else {
+					op.Args = gpythonnumber.GpythonInt{Int: int64(v)}
+				}
 			case []interface{}:
 				list := gpythonlist.GpythonList{List: []pyobject.PyObject{}}
 				for i := 0; i < len(v); i++ {

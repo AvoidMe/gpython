@@ -43,3 +43,14 @@ func (v GpythonList) String() string {
 func (v GpythonList) Repr() string {
 	return v.String()
 }
+
+func (v GpythonList) BinaryAdd(b pyobject.PyObject) pyobject.PyObject {
+	bList, success := b.(GpythonList)
+	if !success {
+		panic("Can't add list and non-list") // TODO: properly handle an error
+	}
+	result := []pyobject.PyObject{}
+	result = append(result, v.List...)
+	result = append(result, bList.List...)
+	return GpythonList{List: result}
+}
