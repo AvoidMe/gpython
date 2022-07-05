@@ -1,9 +1,9 @@
 package opcode
 
-import "main/pyobject"
+import "github.com/AvoidMe/gpython/builtin"
 
 type Instruction struct {
 	Opcode int
 	Arg    int
-	Args   pyobject.PyObject
+	Args   builtin.PyObject
 }

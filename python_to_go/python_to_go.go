@@ -2,13 +2,11 @@ package pythontogo
 
 import (
 	"encoding/json"
-	gpythonlist "main/g_python_list"
-	gpythonnumber "main/g_python_number"
-	gpythonstring "main/g_python_string"
-	"main/opcode"
-	"main/pyobject"
 	"os"
 	"strings"
+
+	"github.com/AvoidMe/gpython/builtin"
+	"github.com/AvoidMe/gpython/opcode"
 )
 
 type PythonBytecode struct {
@@ -31,25 +29,25 @@ func LoadJson() []opcode.Instruction {
 		if value.Argval != nil {
 			switch v := value.Argval.(type) {
 			case string:
-				op.Args = gpythonstring.GpythonString{Str: v}
+				op.Args = builtin.PyString{Value: v}
 			case float64:
 				// Golang unmarshal treats every JSON number as float64:
 				// https://pkg.go.dev/encoding/json#Unmarshal
 				// Here we're trying to check if source value was int or float
 				if strings.Contains(value.Argrepr, ".") {
-					op.Args = gpythonnumber.GpythonFloat{Float: v}
+					op.Args = builtin.PyFloat{Value: v}
 				} else {
-					op.Args = gpythonnumber.GpythonInt{Int: int64(v)}
+					op.Args = builtin.PyInt{Value: int64(v)}
 				}
 			case []interface{}:
-				list := gpythonlist.GpythonList{List: []pyobject.PyObject{}}
+				list := builtin.PyList{Value: []builtin.PyObject{}}
 				for i := 0; i < len(v); i++ {
-					list.Append(gpythonstring.GpythonString{Str: v[i].(string)})
+					list.Append(builtin.PyString{Value: v[i].(string)})
 				}
 				op.Args = list
 			}
 		} else {
-			op.Args = pyobject.None
+			op.Args = builtin.None
 		}
 		output = append(output, op)
 	}

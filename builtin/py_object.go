@@ -1,4 +1,4 @@
-package pyobject
+package builtin
 
 type PyObject interface {
 	Repr() string
@@ -10,15 +10,3 @@ type PyBinaryAdd interface {
 	PyObject
 	BinaryAdd(PyObject) PyObject
 }
-
-type NoneType struct{}
-
-func (NoneType) Repr() string {
-	return "None"
-}
-
-func (NoneType) String() string {
-	return "None"
-}
-
-var None = NoneType{}

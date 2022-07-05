@@ -2,35 +2,30 @@ package builtin
 
 import (
 	"fmt"
-	gpythonfunction "main/g_python_function"
-	gpythonlist "main/g_python_list"
-	gpythonstring "main/g_python_string"
-	"main/pyobject"
 )
 
-var Builtin = map[string]pyobject.PyObject{
-	"print": gpythonfunction.GPythonFunction{
+var Builtin = map[string]PyObject{
+	"print": PyFunction{
 		Callable:    GPythonPrint,
 		StringValue: "<built-in function print>",
 		ReprValue:   "<built-in function print>",
 	},
 }
 
-func GPythonPrint(args pyobject.PyObject, kwnames pyobject.PyObject) pyobject.PyObject {
-	GPythonPrintImplementation(args, gpythonstring.GpythonString{Str: " "}, gpythonstring.GpythonString{Str: "\n"}, pyobject.None, false)
-	return pyobject.None
+func GPythonPrint(args PyObject, kwnames PyObject) PyObject {
+	GPythonPrintImplementation(args, PyString{Value: " "}, PyString{Value: "\n"}, None, false)
+	return None
 }
 
 // https://github.com/python/cpython/blob/main/Python/bltinmodule.c#L1987 (builtin_print_impl)
 func GPythonPrintImplementation(
-	args pyobject.PyObject,
-	sep pyobject.PyObject,
-	end pyobject.PyObject,
-	file pyobject.PyObject,
+	args PyObject,
+	sep PyObject,
+	end PyObject,
+	file PyObject,
 	flush bool,
 ) {
-	list := args.(gpythonlist.GpythonList).List
-	for _, arg := range list {
+	for _, arg := range args.(PyList).Value {
 		fmt.Print(arg.String())
 		fmt.Print(sep.String())
 	}
