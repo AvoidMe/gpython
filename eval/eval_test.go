@@ -8,6 +8,12 @@ import (
 	"github.com/AvoidMe/gpython/opcode"
 )
 
+type binaryTestCase struct {
+	Left     builtin.PyObject
+	Right    builtin.PyObject
+	Expected builtin.PyObject
+}
+
 func TestEmptyInput(t *testing.T) {
 	input := []opcode.Instruction{}
 	EvalInstructions(input)
@@ -50,11 +56,13 @@ func TestListExtend(t *testing.T) {
 			builtin.PyString{Value: "Fourth"},
 		},
 	}
-	expected := []builtin.PyString{
-		{Value: "First"},
-		{Value: "Second"},
-		{Value: "Third"},
-		{Value: "Fourth"},
+	expected := builtin.PyList{
+		Value: []builtin.PyObject{
+			builtin.PyString{Value: "First"},
+			builtin.PyString{Value: "Second"},
+			builtin.PyString{Value: "Third"},
+			builtin.PyString{Value: "Fourth"},
+		},
 	}
 	input := []opcode.Instruction{
 		{
@@ -79,30 +87,19 @@ func TestListExtend(t *testing.T) {
 		},
 	}
 	result := EvalInstructions(input)
-	answer, ok := result.(builtin.PyList)
-	if !ok {
-		t.Errorf("Returns incorrect type: %v", result)
-	}
-	if len(answer.Value) != len(expected) {
-		t.Errorf("Returns wrong list: %v", answer)
-	}
-	for index, value := range answer.Value {
-		strValue, ok := value.(builtin.PyString)
-		if !ok {
-			t.Errorf("Got: %v, expected: %v", answer, expected)
-		}
-		if strValue.Value != expected[index].Value {
-			t.Errorf("Got: %v, expected: %v", answer, expected)
-		}
+	if expected.Equal(result) == builtin.PyFalse {
+		t.Errorf("Got: %v, expected: %v", result, expected)
 	}
 }
 
 func TestBuildList(t *testing.T) {
-	expected := []builtin.PyString{
-		{Value: "First"},
-		{Value: "Second"},
-		{Value: "Third"},
-		{Value: "Fourth"},
+	expected := builtin.PyList{
+		Value: []builtin.PyObject{
+			builtin.PyString{Value: "First"},
+			builtin.PyString{Value: "Second"},
+			builtin.PyString{Value: "Third"},
+			builtin.PyString{Value: "Fourth"},
+		},
 	}
 	input := []opcode.Instruction{
 		{
@@ -137,21 +134,8 @@ func TestBuildList(t *testing.T) {
 		},
 	}
 	result := EvalInstructions(input)
-	answer, ok := result.(builtin.PyList)
-	if !ok {
-		t.Errorf("Returns incorrect type: %v", result)
-	}
-	if len(answer.Value) != len(expected) {
-		t.Errorf("Returns wrong list: %v", answer)
-	}
-	for index, value := range answer.Value {
-		strValue, ok := value.(builtin.PyString)
-		if !ok {
-			t.Errorf("Got: %v, expected: %v", answer, expected)
-		}
-		if strValue.Value != expected[index].Value {
-			t.Errorf("Got: %v, expected: %v", answer, expected)
-		}
+	if expected.Equal(result) == builtin.PyFalse {
+		t.Errorf("Got: %v, expected: %v", result, expected)
 	}
 }
 
@@ -224,202 +208,109 @@ func TestPopTop(t *testing.T) {
 }
 
 func TestBinaryAdd(t *testing.T) {
-	input := []opcode.Instruction{
-		// str + str
+	cases := []binaryTestCase{
+		{
+			builtin.PyString{Value: "Hello"},
+			builtin.PyString{Value: ", world!"},
+			builtin.PyString{Value: "Hello, world!"},
+		},
+		{
+			builtin.PyInt{Value: 10},
+			builtin.PyInt{Value: 32},
+			builtin.PyInt{Value: 42},
+		},
+		{
+			builtin.PyInt{Value: 10},
+			builtin.PyFloat{Value: 32.54321},
+			builtin.PyFloat{Value: 42.54321},
+		},
+		{
+			builtin.PyFloat{Value: 10.54321},
+			builtin.PyInt{Value: 32},
+			builtin.PyFloat{Value: 42.54321},
+		},
+		{
+			builtin.PyFloat{Value: 10.54321},
+			builtin.PyFloat{Value: 32.12345},
+			builtin.PyFloat{Value: 42.66666},
+		},
+		{
+			builtin.PyTrue,
+			builtin.PyFalse,
+			builtin.PyInt{Value: 1},
+		},
+		{
+			builtin.PyFalse,
+			builtin.PyFalse,
+			builtin.PyInt{Value: 0},
+		},
+		{
+			builtin.PyTrue,
+			builtin.PyTrue,
+			builtin.PyInt{Value: 2},
+		},
+		{
+			builtin.PyTrue,
+			builtin.PyInt{Value: 41},
+			builtin.PyInt{Value: 42},
+		},
+		{
+			builtin.PyFalse,
+			builtin.PyInt{Value: 41},
+			builtin.PyInt{Value: 41},
+		},
+		{
+			builtin.PyFalse,
+			builtin.PyFloat{Value: 41.5},
+			builtin.PyFloat{Value: 41.5},
+		},
+		{
+			builtin.PyFloat{Value: 41.5},
+			builtin.PyFalse,
+			builtin.PyFloat{Value: 41.5},
+		},
+		{
+			builtin.PyTrue,
+			builtin.PyFloat{Value: 41.5},
+			builtin.PyFloat{Value: 42.5},
+		},
+		{
+			builtin.PyFloat{Value: 41.5},
+			builtin.PyTrue,
+			builtin.PyFloat{Value: 42.5},
+		},
+		{
+			builtin.PyInt{Value: 41},
+			builtin.PyFalse,
+			builtin.PyInt{Value: 41},
+		},
+		{
+			builtin.PyInt{Value: 41},
+			builtin.PyTrue,
+			builtin.PyInt{Value: 42},
+		},
+	}
+	for _, testCase := range cases {
+		_testBinaryAdd(t, testCase.Left, testCase.Right, testCase.Expected)
+	}
+}
+
+func _testBinaryAdd(t *testing.T, a builtin.PyObject, b builtin.PyObject, expected builtin.PyObject) {
+	instructions := []opcode.Instruction{
 		{
 			Opcode: opcode.LOAD_CONST,
 			Arg:    0,
-			Args:   builtin.PyString{Value: "Hello"},
+			Args:   a,
 		},
 		{
 			Opcode: opcode.LOAD_CONST,
 			Arg:    0,
-			Args:   builtin.PyString{Value: ", world!"},
+			Args:   b,
 		},
 		{
 			Opcode: opcode.BINARY_ADD,
 			Arg:    0,
-			Args:   builtin.PyNone,
-		},
-		// int + int
-		{
-			Opcode: opcode.LOAD_CONST,
-			Arg:    0,
-			Args:   builtin.PyInt{Value: 10},
-		},
-		{
-			Opcode: opcode.LOAD_CONST,
-			Arg:    0,
-			Args:   builtin.PyInt{Value: 32},
-		},
-		{
-			Opcode: opcode.BINARY_ADD,
-			Arg:    0,
-			Args:   builtin.PyNone,
-		},
-		// int + float
-		{
-			Opcode: opcode.LOAD_CONST,
-			Arg:    0,
-			Args:   builtin.PyInt{Value: 10},
-		},
-		{
-			Opcode: opcode.LOAD_CONST,
-			Arg:    0,
-			Args:   builtin.PyFloat{Value: 32.54321},
-		},
-		{
-			Opcode: opcode.BINARY_ADD,
-			Arg:    0,
-			Args:   builtin.PyNone,
-		},
-		// float + int
-		{
-			Opcode: opcode.LOAD_CONST,
-			Arg:    0,
-			Args:   builtin.PyFloat{Value: 10.54321},
-		},
-		{
-			Opcode: opcode.LOAD_CONST,
-			Arg:    0,
-			Args:   builtin.PyInt{Value: 32},
-		},
-		{
-			Opcode: opcode.BINARY_ADD,
-			Arg:    0,
-			Args:   builtin.PyNone,
-		},
-		// float + float
-		{
-			Opcode: opcode.LOAD_CONST,
-			Arg:    0,
-			Args:   builtin.PyFloat{Value: 10.54321},
-		},
-		{
-			Opcode: opcode.LOAD_CONST,
-			Arg:    0,
-			Args:   builtin.PyFloat{Value: 32.12345},
-		},
-		{
-			Opcode: opcode.BINARY_ADD,
-			Arg:    0,
-			Args:   builtin.PyNone,
-		},
-		// bool + bool
-		{
-			Opcode: opcode.LOAD_CONST,
-			Arg:    0,
-			Args:   builtin.PyTrue,
-		},
-		{
-			Opcode: opcode.LOAD_CONST,
-			Arg:    0,
-			Args:   builtin.PyFalse,
-		},
-		{
-			Opcode: opcode.LOAD_CONST,
-			Arg:    0,
-			Args:   builtin.PyTrue,
-		},
-		{
-			Opcode: opcode.BINARY_ADD,
-			Arg:    0,
-			Args:   builtin.PyNone,
-		},
-		{
-			Opcode: opcode.BINARY_ADD,
-			Arg:    0,
-			Args:   builtin.PyNone,
-		},
-		// bool + int
-		{
-			Opcode: opcode.LOAD_CONST,
-			Arg:    0,
-			Args:   builtin.PyTrue,
-		},
-		{
-			Opcode: opcode.LOAD_CONST,
-			Arg:    0,
-			Args:   builtin.PyFalse,
-		},
-		{
-			Opcode: opcode.LOAD_CONST,
-			Arg:    0,
-			Args:   builtin.PyInt{Value: 41},
-		},
-		{
-			Opcode: opcode.BINARY_ADD,
-			Arg:    0,
-			Args:   builtin.PyNone,
-		},
-		{
-			Opcode: opcode.BINARY_ADD,
-			Arg:    0,
-			Args:   builtin.PyNone,
-		},
-		// bool + float
-		{
-			Opcode: opcode.LOAD_CONST,
-			Arg:    0,
-			Args:   builtin.PyTrue,
-		},
-		{
-			Opcode: opcode.LOAD_CONST,
-			Arg:    0,
-			Args:   builtin.PyFalse,
-		},
-		{
-			Opcode: opcode.LOAD_CONST,
-			Arg:    0,
-			Args:   builtin.PyFloat{Value: 41.5},
-		},
-		{
-			Opcode: opcode.BINARY_ADD,
-			Arg:    0,
-			Args:   builtin.PyNone,
-		},
-		{
-			Opcode: opcode.BINARY_ADD,
-			Arg:    0,
-			Args:   builtin.PyNone,
-		},
-		// float + bool
-		{
-			Opcode: opcode.LOAD_CONST,
-			Arg:    0,
-			Args:   builtin.PyFloat{Value: 41.5},
-		},
-		{
-			Opcode: opcode.LOAD_CONST,
-			Arg:    0,
-			Args:   builtin.PyTrue,
-		},
-		{
-			Opcode: opcode.BINARY_ADD,
-			Arg:    0,
-			Args:   builtin.PyNone,
-		},
-		// int + bool
-		{
-			Opcode: opcode.LOAD_CONST,
-			Arg:    0,
-			Args:   builtin.PyInt{Value: 41},
-		},
-		{
-			Opcode: opcode.LOAD_CONST,
-			Arg:    0,
-			Args:   builtin.PyTrue,
-		},
-		{
-			Opcode: opcode.BINARY_ADD,
-			Arg:    0,
-			Args:   builtin.PyNone,
-		},
-		// Return values
-		{
-			Opcode: opcode.BUILD_LIST,
-			Arg:    10,
-			Args:   builtin.PyNone,
+			Args:   builtin.PyEq,
 		},
 		{
 			Opcode: opcode.RETURN_VALUE,
@@ -427,48 +318,171 @@ func TestBinaryAdd(t *testing.T) {
 			Args:   builtin.PyNone,
 		},
 	}
-	expected := []builtin.PyObject{
-		builtin.PyString{Value: "Hello, world!"},
-		builtin.PyInt{Value: 42},
-		builtin.PyFloat{Value: 42.54321},
-		builtin.PyFloat{Value: 42.54321},
-		builtin.PyFloat{Value: 42.66666},
-		builtin.PyInt{Value: 2},
-		builtin.PyInt{Value: 42},
-		builtin.PyFloat{Value: 42.5},
-		builtin.PyFloat{Value: 42.5},
-		builtin.PyInt{Value: 42},
+	result := EvalInstructions(instructions)
+	if reflect.TypeOf(expected) != reflect.TypeOf(result) {
+		t.Errorf("Returns incorect value, a: %v, b: %v, expected: %v, answer: %v", a, b, expected, result)
 	}
-	result := EvalInstructions(input)
-	answer, ok := result.(builtin.PyList)
+	if result.Equal(expected) == builtin.PyFalse {
+		t.Errorf("Returns incorect value, a: %v, b: %v, expected: %v, answer: %v", a, b, expected, result)
+	}
+}
+
+func TestCompareOpEqual(t *testing.T) {
+	cases := []binaryTestCase{
+		// None
+		{builtin.PyNone, builtin.PyNone, builtin.PyTrue},
+		{builtin.PyNone, builtin.PyString{Value: "testy"}, builtin.PyFalse},
+		// bool == bool
+		{builtin.PyTrue, builtin.PyTrue, builtin.PyTrue},
+		{builtin.PyTrue, builtin.PyFalse, builtin.PyFalse},
+		{builtin.PyFalse, builtin.PyTrue, builtin.PyFalse},
+		{builtin.PyFalse, builtin.PyFalse, builtin.PyTrue},
+		// bool == unexpected_type
+		{builtin.PyTrue, builtin.PyString{Value: "testy"}, builtin.PyFalse},
+		// bool == int
+		{builtin.PyTrue, builtin.PyInt{Value: 1}, builtin.PyTrue},
+		{builtin.PyTrue, builtin.PyInt{Value: 0}, builtin.PyFalse},
+		{builtin.PyFalse, builtin.PyInt{Value: 1}, builtin.PyFalse},
+		{builtin.PyFalse, builtin.PyInt{Value: 0}, builtin.PyTrue},
+		// bool == float
+		{builtin.PyTrue, builtin.PyFloat{Value: 1.0}, builtin.PyTrue},
+		{builtin.PyTrue, builtin.PyFloat{Value: 0.0}, builtin.PyFalse},
+		{builtin.PyFalse, builtin.PyFloat{Value: 1.0}, builtin.PyFalse},
+		{builtin.PyFalse, builtin.PyFloat{Value: 0.0}, builtin.PyTrue},
+		// int == bool
+		{builtin.PyInt{Value: 1}, builtin.PyTrue, builtin.PyTrue},
+		{builtin.PyInt{Value: 0}, builtin.PyTrue, builtin.PyFalse},
+		{builtin.PyInt{Value: 1}, builtin.PyFalse, builtin.PyFalse},
+		{builtin.PyInt{Value: 0}, builtin.PyFalse, builtin.PyTrue},
+		// int == int
+		{builtin.PyInt{Value: 42}, builtin.PyInt{Value: 42}, builtin.PyTrue},
+		{builtin.PyInt{Value: 42}, builtin.PyInt{Value: 444}, builtin.PyFalse},
+		// int == unexpected_type
+		{builtin.PyInt{Value: 42}, builtin.PyString{Value: "testy"}, builtin.PyFalse},
+		// int == float
+		{builtin.PyInt{Value: 42}, builtin.PyFloat{Value: 42.0}, builtin.PyTrue},
+		{builtin.PyInt{Value: 42}, builtin.PyFloat{Value: 42.5}, builtin.PyFalse},
+		// float == int
+		{builtin.PyFloat{Value: 42.0}, builtin.PyInt{Value: 42}, builtin.PyTrue},
+		{builtin.PyFloat{Value: 42.5}, builtin.PyInt{Value: 42}, builtin.PyFalse},
+		// float == float
+		{builtin.PyFloat{Value: 42.5}, builtin.PyFloat{Value: 42.5}, builtin.PyTrue},
+		{builtin.PyFloat{Value: 42.5}, builtin.PyFloat{Value: 42.555}, builtin.PyFalse},
+		// float == unextected_type
+		{builtin.PyFloat{Value: 42.5}, builtin.PyString{Value: "testy"}, builtin.PyFalse},
+
+		// function == function
+		// TODO: compare for functions is BROKEN
+		// 		 also: add case for different functions
+		// {builtin.Builtin["print"], builtin.Builtin["print"], builtin.PyTrue},
+		//	-> this returns false, but python not:
+		// >>> print == print
+		// True
+
+		// function == unexpected_type
+		{builtin.Builtin["print"], builtin.PyString{Value: "testy"}, builtin.PyFalse},
+		// list == unexpected_type
+		{
+			builtin.PyList{Value: []builtin.PyObject{
+				builtin.PyString{Value: "testy"}},
+			},
+			builtin.PyString{Value: "testy"},
+			builtin.PyFalse,
+		},
+		// list == list
+		{
+			builtin.PyList{Value: []builtin.PyObject{
+				builtin.PyString{Value: "testy"}},
+			},
+			builtin.PyList{Value: []builtin.PyObject{
+				builtin.PyString{Value: "testy_test_test"}},
+			},
+			builtin.PyFalse,
+		},
+		{
+			builtin.PyList{Value: []builtin.PyObject{
+				builtin.PyString{Value: "testy"}},
+			},
+			builtin.PyList{Value: []builtin.PyObject{
+				builtin.PyString{Value: "testy"}},
+			},
+			builtin.PyTrue,
+		},
+		// list with nested lists
+		{
+			builtin.PyList{
+				Value: []builtin.PyObject{
+					builtin.PyString{Value: "testy"},
+					builtin.PyList{
+						Value: []builtin.PyObject{
+							builtin.PyString{Value: "testy"},
+						},
+					},
+				},
+			},
+			builtin.PyList{Value: []builtin.PyObject{
+				builtin.PyString{Value: "testy"}},
+			},
+			builtin.PyFalse,
+		},
+		{
+			builtin.PyList{
+				Value: []builtin.PyObject{
+					builtin.PyString{Value: "testy"},
+					builtin.PyList{
+						Value: []builtin.PyObject{
+							builtin.PyString{Value: "testy"},
+						},
+					},
+				},
+			},
+			builtin.PyList{
+				Value: []builtin.PyObject{
+					builtin.PyString{Value: "testy"},
+					builtin.PyList{
+						Value: []builtin.PyObject{
+							builtin.PyString{Value: "testy"},
+						},
+					},
+				},
+			},
+			builtin.PyTrue,
+		},
+	}
+	for _, testCase := range cases {
+		_testCompareOpEqual(t, testCase.Left, testCase.Right, testCase.Expected.(builtin.PyBool))
+	}
+}
+
+func _testCompareOpEqual(t *testing.T, a builtin.PyObject, b builtin.PyObject, expected builtin.PyBool) {
+	instructions := []opcode.Instruction{
+		{
+			Opcode: opcode.LOAD_CONST,
+			Arg:    0,
+			Args:   a,
+		},
+		{
+			Opcode: opcode.LOAD_CONST,
+			Arg:    0,
+			Args:   b,
+		},
+		{
+			Opcode: opcode.COMPARE_OP,
+			Arg:    0,
+			Args:   builtin.PyEq,
+		},
+		{
+			Opcode: opcode.RETURN_VALUE,
+			Arg:    0,
+			Args:   builtin.PyNone,
+		},
+	}
+	result := EvalInstructions(instructions)
+	answer, ok := result.(builtin.PyBool)
 	if !ok {
 		t.Errorf("Returns wrong type: %v", answer)
 	}
-	if len(answer.Value) != len(expected) {
-		t.Errorf("Expected and result list differs in size: %v", answer)
-	}
-	for index, value := range answer.Value {
-		if reflect.TypeOf(value) != reflect.TypeOf(expected[index]) {
-			t.Errorf("Returns incorect value: %v", answer)
-		}
-		switch a := value.(type) {
-		case builtin.PyString:
-			b := expected[index].(builtin.PyString)
-			if a.Value != b.Value {
-				t.Errorf("Returns incorect value: %v", answer)
-			}
-		case builtin.PyInt:
-			b := expected[index].(builtin.PyInt)
-			if a.Value != b.Value {
-				t.Errorf("Returns incorect value: %v", answer)
-			}
-		case builtin.PyFloat:
-			b := expected[index].(builtin.PyFloat)
-			if a.Value != b.Value {
-				t.Errorf("Returns incorect value: %v", answer)
-			}
-		default:
-			t.Errorf("Expected has unexpected type: %v", expected)
-		}
+	if answer.Value != expected.Value {
+		t.Errorf("Returns incorect value, a: %v, b: %v, expected: %v, answer: %v", a, b, expected, answer)
 	}
 }

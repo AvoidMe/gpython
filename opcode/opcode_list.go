@@ -8,6 +8,7 @@ const (
 	LOAD_CONST    = 100
 	LOAD_NAME     = 101
 	BUILD_LIST    = 103
+	COMPARE_OP    = 107
 	CALL_FUNCTION = 131
 	LIST_EXTEND   = 162
 )

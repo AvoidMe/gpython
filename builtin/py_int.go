@@ -16,6 +16,28 @@ func (self PyInt) Repr() string {
 	return fmt.Sprintf("%v", self.Value)
 }
 
+func (self PyInt) Equal(b PyObject) PyBool {
+	switch bb := b.(type) {
+	case PyFloat:
+		if bb.Value == float64(self.Value) {
+			return PyTrue
+		}
+		return PyFalse
+	case PyInt:
+		if bb.Value == self.Value {
+			return PyTrue
+		}
+		return PyFalse
+	case PyBool:
+		if bb.IntValue() == self.Value {
+			return PyTrue
+		}
+		return PyFalse
+	default:
+		return PyFalse
+	}
+}
+
 func (self PyInt) BinaryAdd(b PyObject) PyObject {
 	switch bb := b.(type) {
 	case PyInt:

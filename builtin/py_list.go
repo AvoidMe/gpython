@@ -40,6 +40,23 @@ func (self PyList) Repr() string {
 	return self.String()
 }
 
+func (self PyList) Equal(b PyObject) PyBool {
+	switch bb := b.(type) {
+	case PyList:
+		if len(bb.Value) != len(self.Value) {
+			return PyFalse
+		}
+		for index := range self.Value {
+			if self.Value[index].Equal(bb.Value[index]) == PyFalse {
+				return PyFalse
+			}
+		}
+		return PyTrue
+	default:
+		return PyFalse
+	}
+}
+
 func (self PyList) BinaryAdd(b PyObject) PyObject {
 	bList, success := b.(PyList)
 	if !success {

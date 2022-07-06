@@ -22,10 +22,29 @@ func (self PyBool) IntValue() int64 {
 	return 0
 }
 
-func (self PyBool) BinaryAdd(b PyObject) PyObject {
-	if !self.Value {
-		return b
+func (self PyBool) Equal(b PyObject) PyBool {
+	switch bb := b.(type) {
+	case PyFloat:
+		if bb.Value == float64(self.IntValue()) {
+			return PyTrue
+		}
+		return PyFalse
+	case PyInt:
+		if bb.Value == self.IntValue() {
+			return PyTrue
+		}
+		return PyFalse
+	case PyBool:
+		if bb.Value == self.Value {
+			return PyTrue
+		}
+		return PyFalse
+	default:
+		return PyFalse
 	}
+}
+
+func (self PyBool) BinaryAdd(b PyObject) PyObject {
 	switch bb := b.(type) {
 	case PyInt:
 		return PyInt{Value: bb.Value + self.IntValue()}

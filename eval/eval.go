@@ -48,6 +48,15 @@ func EvalInstructions(instructions []opcode.Instruction) builtin.PyObject {
 			frame.Stack.Append(
 				builtin.PyList{Value: frame.Stack.PopN(instruction.Arg)},
 			)
+		case opcode.COMPARE_OP:
+			a := frame.Stack.Pop()
+			b := frame.Stack.Pop()
+			switch instruction.Args.(builtin.PyString).Value {
+			case builtin.PyEq.Value:
+				frame.Stack.Append(a.Equal(b))
+			default:
+				panic("Not implemented comparsion opcode")
+			}
 		case opcode.CALL_FUNCTION:
 			args := builtin.PyList{Value: frame.Stack.PopN(instruction.Arg)}
 			function := frame.Stack.Pop().(builtin.PyFunction)

@@ -3,7 +3,6 @@ package pythontogo
 import (
 	"encoding/json"
 	"os"
-	"strings"
 
 	"github.com/AvoidMe/gpython/builtin"
 	"github.com/AvoidMe/gpython/opcode"
@@ -19,6 +18,32 @@ type PythonBytecode struct {
 	Is_jump_target bool
 }
 
+func jsonTypeToPy(value interface{}) builtin.PyObject {
+	switch v := value.(type) {
+	case bool:
+		return builtin.PyBool{Value: v}
+	case string:
+		return builtin.PyString{Value: v}
+	case float64:
+		// Golang unmarshal treats every JSON number as float64:
+		// https://pkg.go.dev/encoding/json#Unmarshal
+		// Here we're trying to check if source value was int or float
+		if float64(int64(v)) == v {
+			return builtin.PyInt{Value: int64(v)}
+		} else {
+			return builtin.PyFloat{Value: v}
+		}
+	case []interface{}:
+		list := builtin.PyList{Value: []builtin.PyObject{}}
+		for i := 0; i < len(v); i++ {
+			list.Append(jsonTypeToPy(v[i]))
+		}
+		return list
+	default:
+		panic("Json has undefined type")
+	}
+}
+
 func LoadJson() []opcode.Instruction {
 	var bytecode []PythonBytecode
 	var output []opcode.Instruction
@@ -27,25 +52,7 @@ func LoadJson() []opcode.Instruction {
 	for _, value := range bytecode {
 		op := opcode.Instruction{Opcode: value.Opcode, Arg: value.Arg}
 		if value.Argval != nil {
-			switch v := value.Argval.(type) {
-			case string:
-				op.Args = builtin.PyString{Value: v}
-			case float64:
-				// Golang unmarshal treats every JSON number as float64:
-				// https://pkg.go.dev/encoding/json#Unmarshal
-				// Here we're trying to check if source value was int or float
-				if strings.Contains(value.Argrepr, ".") {
-					op.Args = builtin.PyFloat{Value: v}
-				} else {
-					op.Args = builtin.PyInt{Value: int64(v)}
-				}
-			case []interface{}:
-				list := builtin.PyList{Value: []builtin.PyObject{}}
-				for i := 0; i < len(v); i++ {
-					list.Append(builtin.PyString{Value: v[i].(string)})
-				}
-				op.Args = list
-			}
+			op.Args = jsonTypeToPy(value.Argval)
 		} else {
 			op.Args = builtin.PyNone
 		}

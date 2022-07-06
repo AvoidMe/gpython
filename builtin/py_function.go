@@ -13,3 +13,15 @@ func (self PyFunction) String() string {
 func (self PyFunction) Repr() string {
 	return self.ReprValue
 }
+
+func (self PyFunction) Equal(b PyObject) PyBool {
+	switch bb := b.(type) {
+	case PyFunction:
+		if &bb == &self {
+			return PyTrue
+		}
+		return PyFalse
+	default:
+		return PyFalse
+	}
+}
