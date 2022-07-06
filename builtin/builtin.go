@@ -13,8 +13,8 @@ var Builtin = map[string]PyObject{
 }
 
 func GPythonPrint(args PyObject, kwnames PyObject) PyObject {
-	GPythonPrintImplementation(args, PyString{Value: " "}, PyString{Value: "\n"}, None, false)
-	return None
+	GPythonPrintImplementation(args, PyString{Value: " "}, PyString{Value: "\n"}, PyNone, false)
+	return PyNone
 }
 
 // https://github.com/python/cpython/blob/main/Python/bltinmodule.c#L1987 (builtin_print_impl)

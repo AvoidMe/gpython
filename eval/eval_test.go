@@ -24,7 +24,7 @@ func TestReturnValue(t *testing.T) {
 		{
 			Opcode: opcode.RETURN_VALUE,
 			Arg:    0,
-			Args:   builtin.None,
+			Args:   builtin.PyNone,
 		},
 	}
 	result := EvalInstructions(input)
@@ -70,12 +70,12 @@ func TestListExtend(t *testing.T) {
 		{
 			Opcode: opcode.LIST_EXTEND,
 			Arg:    0,
-			Args:   builtin.None,
+			Args:   builtin.PyNone,
 		},
 		{
 			Opcode: opcode.RETURN_VALUE,
 			Arg:    0,
-			Args:   builtin.None,
+			Args:   builtin.PyNone,
 		},
 	}
 	result := EvalInstructions(input)
@@ -128,12 +128,12 @@ func TestBuildList(t *testing.T) {
 		{
 			Opcode: opcode.BUILD_LIST,
 			Arg:    4,
-			Args:   builtin.None,
+			Args:   builtin.PyNone,
 		},
 		{
 			Opcode: opcode.RETURN_VALUE,
 			Arg:    0,
-			Args:   builtin.None,
+			Args:   builtin.PyNone,
 		},
 	}
 	result := EvalInstructions(input)
@@ -176,7 +176,7 @@ func TestStoreLocalName(t *testing.T) {
 		{
 			Opcode: opcode.RETURN_VALUE,
 			Arg:    0,
-			Args:   builtin.None,
+			Args:   builtin.PyNone,
 		},
 	}
 	result := EvalInstructions(input)
@@ -205,12 +205,12 @@ func TestPopTop(t *testing.T) {
 		{
 			Opcode: opcode.POP_TOP,
 			Arg:    0,
-			Args:   builtin.None,
+			Args:   builtin.PyNone,
 		},
 		{
 			Opcode: opcode.RETURN_VALUE,
 			Arg:    0,
-			Args:   builtin.None,
+			Args:   builtin.PyNone,
 		},
 	}
 	result := EvalInstructions(input)
@@ -239,7 +239,7 @@ func TestBinaryAdd(t *testing.T) {
 		{
 			Opcode: opcode.BINARY_ADD,
 			Arg:    0,
-			Args:   builtin.None,
+			Args:   builtin.PyNone,
 		},
 		// int + int
 		{
@@ -255,7 +255,7 @@ func TestBinaryAdd(t *testing.T) {
 		{
 			Opcode: opcode.BINARY_ADD,
 			Arg:    0,
-			Args:   builtin.None,
+			Args:   builtin.PyNone,
 		},
 		// int + float
 		{
@@ -271,7 +271,7 @@ func TestBinaryAdd(t *testing.T) {
 		{
 			Opcode: opcode.BINARY_ADD,
 			Arg:    0,
-			Args:   builtin.None,
+			Args:   builtin.PyNone,
 		},
 		// float + int
 		{
@@ -287,7 +287,7 @@ func TestBinaryAdd(t *testing.T) {
 		{
 			Opcode: opcode.BINARY_ADD,
 			Arg:    0,
-			Args:   builtin.None,
+			Args:   builtin.PyNone,
 		},
 		// float + float
 		{
@@ -303,18 +303,128 @@ func TestBinaryAdd(t *testing.T) {
 		{
 			Opcode: opcode.BINARY_ADD,
 			Arg:    0,
-			Args:   builtin.None,
+			Args:   builtin.PyNone,
+		},
+		// bool + bool
+		{
+			Opcode: opcode.LOAD_CONST,
+			Arg:    0,
+			Args:   builtin.PyTrue,
+		},
+		{
+			Opcode: opcode.LOAD_CONST,
+			Arg:    0,
+			Args:   builtin.PyFalse,
+		},
+		{
+			Opcode: opcode.LOAD_CONST,
+			Arg:    0,
+			Args:   builtin.PyTrue,
+		},
+		{
+			Opcode: opcode.BINARY_ADD,
+			Arg:    0,
+			Args:   builtin.PyNone,
+		},
+		{
+			Opcode: opcode.BINARY_ADD,
+			Arg:    0,
+			Args:   builtin.PyNone,
+		},
+		// bool + int
+		{
+			Opcode: opcode.LOAD_CONST,
+			Arg:    0,
+			Args:   builtin.PyTrue,
+		},
+		{
+			Opcode: opcode.LOAD_CONST,
+			Arg:    0,
+			Args:   builtin.PyFalse,
+		},
+		{
+			Opcode: opcode.LOAD_CONST,
+			Arg:    0,
+			Args:   builtin.PyInt{Value: 41},
+		},
+		{
+			Opcode: opcode.BINARY_ADD,
+			Arg:    0,
+			Args:   builtin.PyNone,
+		},
+		{
+			Opcode: opcode.BINARY_ADD,
+			Arg:    0,
+			Args:   builtin.PyNone,
+		},
+		// bool + float
+		{
+			Opcode: opcode.LOAD_CONST,
+			Arg:    0,
+			Args:   builtin.PyTrue,
+		},
+		{
+			Opcode: opcode.LOAD_CONST,
+			Arg:    0,
+			Args:   builtin.PyFalse,
+		},
+		{
+			Opcode: opcode.LOAD_CONST,
+			Arg:    0,
+			Args:   builtin.PyFloat{Value: 41.5},
+		},
+		{
+			Opcode: opcode.BINARY_ADD,
+			Arg:    0,
+			Args:   builtin.PyNone,
+		},
+		{
+			Opcode: opcode.BINARY_ADD,
+			Arg:    0,
+			Args:   builtin.PyNone,
+		},
+		// float + bool
+		{
+			Opcode: opcode.LOAD_CONST,
+			Arg:    0,
+			Args:   builtin.PyFloat{Value: 41.5},
+		},
+		{
+			Opcode: opcode.LOAD_CONST,
+			Arg:    0,
+			Args:   builtin.PyTrue,
+		},
+		{
+			Opcode: opcode.BINARY_ADD,
+			Arg:    0,
+			Args:   builtin.PyNone,
+		},
+		// int + bool
+		{
+			Opcode: opcode.LOAD_CONST,
+			Arg:    0,
+			Args:   builtin.PyInt{Value: 41},
+		},
+		{
+			Opcode: opcode.LOAD_CONST,
+			Arg:    0,
+			Args:   builtin.PyTrue,
+		},
+		{
+			Opcode: opcode.BINARY_ADD,
+			Arg:    0,
+			Args:   builtin.PyNone,
 		},
 		// Return values
 		{
 			Opcode: opcode.BUILD_LIST,
-			Arg:    5,
-			Args:   builtin.None,
+			Arg:    10,
+			Args:   builtin.PyNone,
 		},
 		{
 			Opcode: opcode.RETURN_VALUE,
 			Arg:    0,
-			Args:   builtin.None,
+			Args:   builtin.PyNone,
 		},
 	}
 	expected := []builtin.PyObject{
@@ -323,6 +433,11 @@ func TestBinaryAdd(t *testing.T) {
 		builtin.PyFloat{Value: 42.54321},
 		builtin.PyFloat{Value: 42.54321},
 		builtin.PyFloat{Value: 42.66666},
+		builtin.PyInt{Value: 2},
+		builtin.PyInt{Value: 42},
+		builtin.PyFloat{Value: 42.5},
+		builtin.PyFloat{Value: 42.5},
+		builtin.PyInt{Value: 42},
 	}
 	result := EvalInstructions(input)
 	answer, ok := result.(builtin.PyList)
@@ -330,7 +445,7 @@ func TestBinaryAdd(t *testing.T) {
 		t.Errorf("Returns wrong type: %v", answer)
 	}
 	if len(answer.Value) != len(expected) {
-		t.Errorf("Returns wrong list: %v", answer)
+		t.Errorf("Expected and result list differs in size: %v", answer)
 	}
 	for index, value := range answer.Value {
 		if reflect.TypeOf(value) != reflect.TypeOf(expected[index]) {

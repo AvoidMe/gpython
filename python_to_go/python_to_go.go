@@ -47,7 +47,7 @@ func LoadJson() []opcode.Instruction {
 				op.Args = list
 			}
 		} else {
-			op.Args = builtin.None
+			op.Args = builtin.PyNone
 		}
 		output = append(output, op)
 	}

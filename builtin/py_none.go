@@ -9,5 +9,3 @@ func (NoneType) Repr() string {
 func (NoneType) String() string {
 	return "None"
 }
-
-var None = NoneType{}

@@ -17,13 +17,14 @@ func (self PyInt) Repr() string {
 }
 
 func (self PyInt) BinaryAdd(b PyObject) PyObject {
-	bInt, success := b.(PyInt)
-	if success {
-		return PyInt{Value: self.Value + bInt.Value}
+	switch bb := b.(type) {
+	case PyInt:
+		return PyInt{Value: self.Value + bb.Value}
+	case PyFloat:
+		return PyFloat{Value: bb.Value + float64(self.Value)}
+	case PyBool:
+		return PyInt{Value: bb.IntValue() + self.Value}
+	default:
+		panic("Can't add number and non-number") // TODO: properly handle an error
 	}
-	bFloat, success := b.(PyFloat)
-	if success {
-		return PyFloat{Value: bFloat.Value + float64(self.Value)}
-	}
-	panic("Can't add number and non-number") // TODO: properly handle an error
 }

@@ -51,7 +51,7 @@ func EvalInstructions(instructions []opcode.Instruction) builtin.PyObject {
 		case opcode.CALL_FUNCTION:
 			args := builtin.PyList{Value: frame.Stack.PopN(instruction.Arg)}
 			function := frame.Stack.Pop().(builtin.PyFunction)
-			frame.Stack.Append(function.Callable(args, builtin.None))
+			frame.Stack.Append(function.Callable(args, builtin.PyNone))
 		case opcode.LIST_EXTEND:
 			args := frame.Stack.Pop().(builtin.PyList)
 			list := frame.Stack.Pop().(builtin.PyList)
