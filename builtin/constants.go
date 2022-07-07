@@ -1,8 +1,8 @@
 package builtin
 
-var PyTrue = PyBool{Value: true}
-var PyFalse = PyBool{Value: false}
+var PyTrue = &PyBool{Value: true}
+var PyFalse = &PyBool{Value: false}
 
-var PyNone = NoneType{}
+var PyNone = &NoneType{}
 
-var PyEq = PyString{Value: "=="}
+var PyEq = &PyString{Value: "=="}

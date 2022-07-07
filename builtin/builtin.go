@@ -5,7 +5,7 @@ import (
 )
 
 var Builtin = map[string]PyObject{
-	"print": PyFunction{
+	"print": &PyFunction{
 		Callable:    GPythonPrint,
 		StringValue: "<built-in function print>",
 		ReprValue:   "<built-in function print>",
@@ -13,7 +13,7 @@ var Builtin = map[string]PyObject{
 }
 
 func GPythonPrint(args PyObject, kwnames PyObject) PyObject {
-	GPythonPrintImplementation(args, PyString{Value: " "}, PyString{Value: "\n"}, PyNone, false)
+	GPythonPrintImplementation(args, &PyString{Value: " "}, &PyString{Value: "\n"}, PyNone, false)
 	return PyNone
 }
 
@@ -25,7 +25,7 @@ func GPythonPrintImplementation(
 	file PyObject,
 	flush bool,
 ) {
-	for _, arg := range args.(PyList).Value {
+	for _, arg := range args.(*PyList).Value {
 		fmt.Print(arg.String())
 		fmt.Print(sep.String())
 	}

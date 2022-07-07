@@ -21,20 +21,20 @@ type PythonBytecode struct {
 func jsonTypeToPy(value interface{}) builtin.PyObject {
 	switch v := value.(type) {
 	case bool:
-		return builtin.PyBool{Value: v}
+		return &builtin.PyBool{Value: v}
 	case string:
-		return builtin.PyString{Value: v}
+		return &builtin.PyString{Value: v}
 	case float64:
 		// Golang unmarshal treats every JSON number as float64:
 		// https://pkg.go.dev/encoding/json#Unmarshal
 		// Here we're trying to check if source value was int or float
 		if float64(int64(v)) == v {
-			return builtin.PyInt{Value: int64(v)}
+			return &builtin.PyInt{Value: int64(v)}
 		} else {
-			return builtin.PyFloat{Value: v}
+			return &builtin.PyFloat{Value: v}
 		}
 	case []interface{}:
-		list := builtin.PyList{Value: []builtin.PyObject{}}
+		list := &builtin.PyList{Value: []builtin.PyObject{}}
 		for i := 0; i < len(v); i++ {
 			list.Append(jsonTypeToPy(v[i]))
 		}

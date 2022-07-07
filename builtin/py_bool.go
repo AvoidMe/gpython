@@ -4,37 +4,37 @@ type PyBool struct {
 	Value bool
 }
 
-func (self PyBool) String() string {
+func (self *PyBool) String() string {
 	if !self.Value {
 		return "False"
 	}
 	return "True"
 }
 
-func (self PyBool) Repr() string {
+func (self *PyBool) Repr() string {
 	return self.String()
 }
 
-func (self PyBool) IntValue() int64 {
+func (self *PyBool) IntValue() int64 {
 	if self.Value {
 		return 1
 	}
 	return 0
 }
 
-func (self PyBool) Equal(b PyObject) PyBool {
+func (self *PyBool) Equal(b PyObject) *PyBool {
 	switch bb := b.(type) {
-	case PyFloat:
+	case *PyFloat:
 		if bb.Value == float64(self.IntValue()) {
 			return PyTrue
 		}
 		return PyFalse
-	case PyInt:
+	case *PyInt:
 		if bb.Value == self.IntValue() {
 			return PyTrue
 		}
 		return PyFalse
-	case PyBool:
+	case *PyBool:
 		if bb.Value == self.Value {
 			return PyTrue
 		}
@@ -44,14 +44,14 @@ func (self PyBool) Equal(b PyObject) PyBool {
 	}
 }
 
-func (self PyBool) BinaryAdd(b PyObject) PyObject {
+func (self *PyBool) BinaryAdd(b PyObject) PyObject {
 	switch bb := b.(type) {
-	case PyInt:
-		return PyInt{Value: bb.Value + self.IntValue()}
-	case PyFloat:
-		return PyFloat{Value: bb.Value + float64(self.IntValue())}
-	case PyBool:
-		return PyInt{Value: bb.IntValue() + self.IntValue()}
+	case *PyInt:
+		return &PyInt{Value: bb.Value + self.IntValue()}
+	case *PyFloat:
+		return &PyFloat{Value: bb.Value + float64(self.IntValue())}
+	case *PyBool:
+		return &PyInt{Value: bb.IntValue() + self.IntValue()}
 	default:
 		panic("Can't add number and non-number") // TODO: properly handle an error
 	}

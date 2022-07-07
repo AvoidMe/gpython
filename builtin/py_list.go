@@ -25,7 +25,7 @@ func (self *PyList) Extend(values []PyObject) {
 	self.Value = append(self.Value, values...)
 }
 
-func (self PyList) String() string {
+func (self *PyList) String() string {
 	result := "["
 	for index, arg := range self.Value {
 		result += arg.Repr()
@@ -36,13 +36,13 @@ func (self PyList) String() string {
 	return result + "]"
 }
 
-func (self PyList) Repr() string {
+func (self *PyList) Repr() string {
 	return self.String()
 }
 
-func (self PyList) Equal(b PyObject) PyBool {
+func (self *PyList) Equal(b PyObject) *PyBool {
 	switch bb := b.(type) {
-	case PyList:
+	case *PyList:
 		if len(bb.Value) != len(self.Value) {
 			return PyFalse
 		}
@@ -57,13 +57,13 @@ func (self PyList) Equal(b PyObject) PyBool {
 	}
 }
 
-func (self PyList) BinaryAdd(b PyObject) PyObject {
-	bList, success := b.(PyList)
+func (self *PyList) BinaryAdd(b PyObject) PyObject {
+	bList, success := b.(*PyList)
 	if !success {
 		panic("Can't add list and non-list") // TODO: properly handle an error
 	}
 	result := []PyObject{}
 	result = append(result, self.Value...)
 	result = append(result, bList.Value...)
-	return PyList{Value: result}
+	return &PyList{Value: result}
 }
