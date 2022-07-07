@@ -57,6 +57,14 @@ func EvalInstructions(instructions []opcode.Instruction) builtin.PyObject {
 			default:
 				panic("Not implemented comparsion opcode")
 			}
+		case opcode.IS_OP:
+			a := frame.Stack.Pop()
+			b := frame.Stack.Pop()
+			if a == b {
+				frame.Stack.Append(builtin.PyTrue)
+			} else {
+				frame.Stack.Append(builtin.PyFalse)
+			}
 		case opcode.CALL_FUNCTION:
 			args := &builtin.PyList{Value: frame.Stack.PopN(instruction.Arg)}
 			function := frame.Stack.Pop().(*builtin.PyFunction)

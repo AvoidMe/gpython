@@ -489,3 +489,88 @@ func _testCompareOpEqual(t *testing.T, a builtin.PyObject, b builtin.PyObject, e
 		t.Errorf("Returns incorect value, a: %v, b: %v, expected: %v, answer: %v", a, b, expected, answer)
 	}
 }
+
+func TestIsOp(t *testing.T) {
+	listItem := &builtin.PyList{Value: []builtin.PyObject{
+		&builtin.PyString{Value: "testy"},
+	}}
+	intItem := &builtin.PyInt{Value: 42}
+	floatItem := &builtin.PyFloat{Value: 42.5}
+	cases := []binaryTestCase{
+		// None
+		{builtin.PyNone, builtin.PyNone, builtin.PyTrue},
+		{builtin.PyNone, &builtin.PyString{Value: "testy"}, builtin.PyFalse},
+		// bool is bool
+		{builtin.PyTrue, builtin.PyTrue, builtin.PyTrue},
+		{builtin.PyTrue, builtin.PyFalse, builtin.PyFalse},
+		{builtin.PyFalse, builtin.PyTrue, builtin.PyFalse},
+		{builtin.PyFalse, builtin.PyFalse, builtin.PyTrue},
+		// bool is unexpected_type
+		{builtin.PyTrue, &builtin.PyString{Value: "testy"}, builtin.PyFalse},
+		// int is int
+		{intItem, intItem, builtin.PyTrue},
+		{&builtin.PyInt{Value: 9999999}, intItem, builtin.PyFalse},
+		// int is unexpected_type
+		{&builtin.PyInt{Value: 42}, &builtin.PyString{Value: "testy"}, builtin.PyFalse},
+		// float is float
+		{floatItem, floatItem, builtin.PyTrue},
+		{&builtin.PyFloat{Value: 42.5}, &builtin.PyFloat{Value: 42.5}, builtin.PyFalse},
+		// float is unextected_type
+		{&builtin.PyFloat{Value: 42.5}, &builtin.PyString{Value: "testy"}, builtin.PyFalse},
+		// function is function
+		{builtin.Builtin["print"], builtin.Builtin["print"], builtin.PyTrue},
+		// TODO: function is function -> PyFalse
+		// function is unexpected_type
+		{builtin.Builtin["print"], &builtin.PyString{Value: "testy"}, builtin.PyFalse},
+		// list is unexpected_type
+		{listItem, &builtin.PyString{Value: "testy"}, builtin.PyFalse},
+		// list is list
+		{listItem, listItem, builtin.PyTrue},
+		{
+			&builtin.PyList{Value: []builtin.PyObject{
+				&builtin.PyString{Value: "testy"}},
+			},
+			&builtin.PyList{Value: []builtin.PyObject{
+				&builtin.PyString{Value: "testy"}},
+			},
+			builtin.PyFalse,
+		},
+	}
+	for _, testCase := range cases {
+		_testIsOp(t, testCase.Left, testCase.Right, testCase.Expected.(*builtin.PyBool))
+	}
+}
+
+func _testIsOp(t *testing.T, a builtin.PyObject, b builtin.PyObject, expected builtin.PyObject) {
+	instructions := []opcode.Instruction{
+		{
+			Opcode: opcode.LOAD_CONST,
+			Arg:    0,
+			Args:   a,
+		},
+		{
+			Opcode: opcode.LOAD_CONST,
+			Arg:    0,
+			Args:   b,
+		},
+		{
+			Opcode: opcode.IS_OP,
+			Arg:    0,
+			Args:   builtin.PyNone,
+		},
+		{
+			Opcode: opcode.RETURN_VALUE,
+			Arg:    0,
+			Args:   builtin.PyNone,
+		},
+	}
+	result := EvalInstructions(instructions)
+	expectedType := reflect.TypeOf(expected)
+	resultType := reflect.TypeOf(result)
+	if expectedType != resultType {
+		t.Errorf("Returns incorect type, a: %v, b: %v, expected: %v, answer: %v", a, b, expectedType, resultType)
+	}
+	if result.Equal(expected) == builtin.PyFalse {
+		t.Errorf("Returns incorect value, a: %v, b: %v, expected: %v, answer: %v", a, b, expected, result)
+	}
+}
