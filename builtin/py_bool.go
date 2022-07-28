@@ -22,6 +22,10 @@ func (self *PyBool) IntValue() int64 {
 	return 0
 }
 
+func (self *PyBool) Hash() (uint64, error) {
+	return uint64(self.IntValue()), nil
+}
+
 func (self *PyBool) Equal(b PyObject) *PyBool {
 	switch bb := b.(type) {
 	case *PyFloat:

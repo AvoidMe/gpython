@@ -4,6 +4,12 @@ import (
 	"fmt"
 )
 
+//func int64ToByte(f int64) []byte {
+//	var buf bytes.Buffer
+//	binary.Write(&buf, binary.BigEndian, f)
+//	return buf.Bytes()
+//}
+
 type PyInt struct {
 	Value int64
 }
@@ -14,6 +20,15 @@ func (self *PyInt) String() string {
 
 func (self *PyInt) Repr() string {
 	return fmt.Sprintf("%v", self.Value)
+}
+
+func (self *PyInt) Hash() (uint64, error) {
+	// CPython returns different hash for objects, which are more than 2**30
+	return uint64(self.Value), nil
+	//h := maphash.Hash{}
+	//h.SetSeed(*GetPyHashSeed())
+	//h.Write(int64ToByte(self.Value))
+	//return h.Sum64(), nil
 }
 
 func (self *PyInt) Equal(b PyObject) *PyBool {

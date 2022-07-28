@@ -742,3 +742,9 @@ func _testIsOp(t *testing.T, a builtin.PyObject, b builtin.PyObject, expected bu
 		t.Errorf("Returns incorect value, a: %v, b: %v, expected: %v, answer: %v", a, b, expected, result)
 	}
 }
+
+// TODO:
+//	func testGetItemDict
+//  func testSetItemDict
+//  func testMakeDict
+//  func testMakeDictKeyMap

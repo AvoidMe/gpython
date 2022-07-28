@@ -1,5 +1,7 @@
 package builtin
 
+import "hash/maphash"
+
 type PyString struct {
 	Value string
 }
@@ -22,6 +24,13 @@ func (self *PyString) Equal(b PyObject) *PyBool {
 	default:
 		return PyFalse
 	}
+}
+
+func (self *PyString) Hash() (uint64, error) {
+	h := maphash.Hash{}
+	h.SetSeed(*GetPyHashSeed())
+	h.WriteString(self.Value)
+	return h.Sum64(), nil
 }
 
 func (self *PyString) BinaryAdd(b PyObject) PyObject {

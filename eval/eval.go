@@ -36,6 +36,18 @@ func EvalInstructions(instructions []opcode.Instruction) builtin.PyObject {
 			b := frame.Stack.Pop().(builtin.PyBinarySubstract) // TODO: error handling
 			result := b.BinarySubstract(a)                     // TODO: error handling
 			frame.Stack.Append(result)
+		case opcode.BINARY_SUBSCR:
+			sub := frame.Stack.Pop()
+			container := frame.Stack.Pop().(builtin.PyGetItem)
+			item, _ := container.GetItem(sub) // TODO: error handling
+			frame.Stack.Append(item)
+		case opcode.STORE_SUBSCR:
+			sub := frame.Stack.Pop()
+			container := frame.Stack.Pop().(builtin.PySetItem)
+			v := frame.Stack.Pop()
+			/* container[sub] = v */
+			container.SetItem(sub, v)
+			frame.Stack.Append(container)
 		case opcode.STORE_NAME:
 			value := frame.Stack.Pop()
 			frame.Locals[instruction.Args.(*builtin.PyString).Value] = value
@@ -55,6 +67,14 @@ func EvalInstructions(instructions []opcode.Instruction) builtin.PyObject {
 			frame.Stack.Append(
 				&builtin.PyList{Value: frame.Stack.PopN(instruction.Arg)},
 			)
+		case opcode.BUILD_MAP:
+			dict := &builtin.PyDict{}
+			for i := 0; i < instruction.Arg; i++ {
+				value := frame.Stack.Pop()
+				key := frame.Stack.Pop()
+				dict.SetItem(key, value)
+			}
+			frame.Stack.Append(dict)
 		case opcode.COMPARE_OP:
 			a := frame.Stack.Pop()
 			b := frame.Stack.Pop()
@@ -76,6 +96,16 @@ func EvalInstructions(instructions []opcode.Instruction) builtin.PyObject {
 			args := &builtin.PyList{Value: frame.Stack.PopN(instruction.Arg)}
 			function := frame.Stack.Pop().(*builtin.PyFunction)
 			frame.Stack.Append(function.Callable(args, builtin.PyNone))
+		case opcode.BUILD_CONST_KEY_MAP:
+			dict := &builtin.PyDict{}
+			keys := frame.Stack.Pop().(*builtin.PyList)
+			for i := instruction.Arg - 1; i >= 0; i-- {
+				index := &builtin.PyInt{Value: int64(i)}
+				key, _ := keys.GetItem(index) // TODO: add error checking
+				value := frame.Stack.Pop()
+				dict.SetItem(key, value)
+			}
+			frame.Stack.Append(dict)
 		case opcode.LIST_EXTEND:
 			args := frame.Stack.Pop().(*builtin.PyList)
 			list := frame.Stack.Pop().(*builtin.PyList)

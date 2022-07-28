@@ -1,5 +1,7 @@
 package builtin
 
+import "unsafe"
+
 type NoneType struct{}
 
 func (*NoneType) Repr() string {
@@ -17,4 +19,8 @@ func (self *NoneType) Equal(b PyObject) *PyBool {
 	default:
 		return PyFalse
 	}
+}
+
+func (self *NoneType) Hash() (uint64, error) {
+	return *(*uint64)(unsafe.Pointer(self)), nil
 }

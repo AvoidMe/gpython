@@ -1,5 +1,7 @@
 package builtin
 
+import "errors"
+
 type PyList struct {
 	Value []PyObject
 }
@@ -8,6 +10,17 @@ func (self *PyList) Pop() PyObject {
 	value := self.Value[len(self.Value)-1]
 	self.Value = self.Value[:len(self.Value)-1]
 	return value
+}
+
+func (self *PyList) SetItem(index PyObject, value PyObject) error {
+	itemIndex := index.(*PyInt)         // TODO: add error handling
+	self.Value[itemIndex.Value] = value // TODO: add index checking
+	return nil
+}
+
+func (self *PyList) GetItem(index PyObject) (PyObject, error) {
+	itemIndex := index.(*PyInt)             // TODO: add error handling
+	return self.Value[itemIndex.Value], nil // TODO: add index checking
 }
 
 func (self *PyList) PopN(n int) []PyObject {
@@ -38,6 +51,10 @@ func (self *PyList) String() string {
 
 func (self *PyList) Repr() string {
 	return self.String()
+}
+
+func (self *PyList) Hash() (uint64, error) {
+	return 0, errors.New("unhashable type: 'list'") // TODO: move to TypeError
 }
 
 func (self *PyList) Equal(b PyObject) *PyBool {

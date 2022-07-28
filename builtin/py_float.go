@@ -1,8 +1,17 @@
 package builtin
 
 import (
+	"bytes"
+	"encoding/binary"
 	"fmt"
+	"hash/maphash"
 )
+
+func float64ToByte(f float64) []byte {
+	var buf bytes.Buffer
+	binary.Write(&buf, binary.BigEndian, f)
+	return buf.Bytes()
+}
 
 type PyFloat struct {
 	Value float64
@@ -14,6 +23,16 @@ func (self *PyFloat) String() string {
 
 func (self *PyFloat) Repr() string {
 	return fmt.Sprintf("%v", self.Value)
+}
+
+func (self *PyFloat) Hash() (uint64, error) {
+	if float64(uint64(self.Value)) == self.Value {
+		return uint64(self.Value), nil
+	}
+	h := maphash.Hash{}
+	h.SetSeed(*GetPyHashSeed())
+	h.Write(float64ToByte(self.Value))
+	return h.Sum64(), nil
 }
 
 func (self *PyFloat) Equal(b PyObject) *PyBool {
