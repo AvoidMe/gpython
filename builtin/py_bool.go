@@ -56,3 +56,16 @@ func (self *PyBool) BinaryAdd(b PyObject) PyObject {
 		panic("Can't add number and non-number") // TODO: properly handle an error
 	}
 }
+
+func (self *PyBool) BinarySubstract(b PyObject) PyObject {
+	switch bb := b.(type) {
+	case *PyInt:
+		return &PyInt{Value: self.IntValue() - bb.Value}
+	case *PyFloat:
+		return &PyFloat{Value: float64(self.IntValue()) - bb.Value}
+	case *PyBool:
+		return &PyInt{Value: self.IntValue() - bb.IntValue()}
+	default:
+		panic("Can't substract number and non-number") // TODO: properly handle an error
+	}
+}

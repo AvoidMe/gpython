@@ -21,7 +21,11 @@ type PythonBytecode struct {
 func jsonTypeToPy(value interface{}) builtin.PyObject {
 	switch v := value.(type) {
 	case bool:
-		return &builtin.PyBool{Value: v}
+		if v {
+			return builtin.PyTrue
+		} else {
+			return builtin.PyFalse
+		}
 	case string:
 		return &builtin.PyString{Value: v}
 	case float64:

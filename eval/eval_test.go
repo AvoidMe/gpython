@@ -19,6 +19,57 @@ func TestEmptyInput(t *testing.T) {
 	EvalInstructions(input)
 }
 
+func TestNOP(t *testing.T) {
+	input := []opcode.Instruction{
+		{
+			Opcode: opcode.NOP,
+			Arg:    0,
+			Args:   builtin.PyNone,
+		},
+		{
+			Opcode: opcode.NOP,
+			Arg:    0,
+			Args:   builtin.PyNone,
+		},
+		{
+			Opcode: opcode.NOP,
+			Arg:    0,
+			Args:   builtin.PyNone,
+		},
+		{
+			Opcode: opcode.NOP,
+			Arg:    0,
+			Args:   builtin.PyNone,
+		},
+		{
+			Opcode: opcode.NOP,
+			Arg:    0,
+			Args:   builtin.PyNone,
+		},
+		{
+			Opcode: opcode.NOP,
+			Arg:    0,
+			Args:   builtin.PyNone,
+		},
+		{
+			Opcode: opcode.NOP,
+			Arg:    0,
+			Args:   builtin.PyNone,
+		},
+		{
+			Opcode: opcode.NOP,
+			Arg:    0,
+			Args:   builtin.PyNone,
+		},
+		{
+			Opcode: opcode.NOP,
+			Arg:    0,
+			Args:   builtin.PyNone,
+		},
+	}
+	EvalInstructions(input)
+}
+
 func TestReturnValue(t *testing.T) {
 	var expected int64 = 42
 	input := []opcode.Instruction{
@@ -309,6 +360,123 @@ func _testBinaryAdd(t *testing.T, a builtin.PyObject, b builtin.PyObject, expect
 		},
 		{
 			Opcode: opcode.BINARY_ADD,
+			Arg:    0,
+			Args:   builtin.PyEq,
+		},
+		{
+			Opcode: opcode.RETURN_VALUE,
+			Arg:    0,
+			Args:   builtin.PyNone,
+		},
+	}
+	result := EvalInstructions(instructions)
+	expectedType := reflect.TypeOf(expected)
+	resultType := reflect.TypeOf(result)
+	if expectedType != resultType {
+		t.Errorf("Returns incorect type, a: %v, b: %v, expected: %v, answer: %v", a, b, expectedType, resultType)
+	}
+	if result.Equal(expected) == builtin.PyFalse {
+		t.Errorf("Returns incorect value, a: %v, b: %v, expected: %v, answer: %v", a, b, expected, result)
+	}
+}
+
+func TestBinarySubstract(t *testing.T) {
+	cases := []binaryTestCase{
+		{
+			&builtin.PyInt{Value: 52},
+			&builtin.PyInt{Value: 10},
+			&builtin.PyInt{Value: 42},
+		},
+		{
+			&builtin.PyFloat{Value: 52.54321},
+			&builtin.PyInt{Value: 10},
+			&builtin.PyFloat{Value: 42.54321},
+		},
+		{
+			&builtin.PyFloat{Value: 52.54321},
+			&builtin.PyInt{Value: 10},
+			&builtin.PyFloat{Value: 42.54321},
+		},
+		{
+			&builtin.PyFloat{Value: 52.66666},
+			&builtin.PyFloat{Value: 10.54321},
+			&builtin.PyFloat{Value: 42.12345},
+		},
+		{
+			builtin.PyTrue,
+			builtin.PyFalse,
+			&builtin.PyInt{Value: 1},
+		},
+		{
+			builtin.PyFalse,
+			builtin.PyFalse,
+			&builtin.PyInt{Value: 0},
+		},
+		{
+			builtin.PyTrue,
+			builtin.PyTrue,
+			&builtin.PyInt{Value: 0},
+		},
+		{
+			builtin.PyTrue,
+			&builtin.PyInt{Value: 41},
+			&builtin.PyInt{Value: -40},
+		},
+		{
+			builtin.PyFalse,
+			&builtin.PyInt{Value: 41},
+			&builtin.PyInt{Value: -41},
+		},
+		{
+			builtin.PyFalse,
+			&builtin.PyFloat{Value: 41.5},
+			&builtin.PyFloat{Value: -41.5},
+		},
+		{
+			&builtin.PyFloat{Value: 41.5},
+			builtin.PyFalse,
+			&builtin.PyFloat{Value: 41.5},
+		},
+		{
+			builtin.PyTrue,
+			&builtin.PyFloat{Value: 41.5},
+			&builtin.PyFloat{Value: -40.5},
+		},
+		{
+			&builtin.PyFloat{Value: 41.5},
+			builtin.PyTrue,
+			&builtin.PyFloat{Value: 40.5},
+		},
+		{
+			&builtin.PyInt{Value: 41},
+			builtin.PyFalse,
+			&builtin.PyInt{Value: 41},
+		},
+		{
+			&builtin.PyInt{Value: 41},
+			builtin.PyTrue,
+			&builtin.PyInt{Value: 40},
+		},
+	}
+	for _, testCase := range cases {
+		_testBinarySubstract(t, testCase.Left, testCase.Right, testCase.Expected)
+	}
+}
+
+func _testBinarySubstract(t *testing.T, a builtin.PyObject, b builtin.PyObject, expected builtin.PyObject) {
+	instructions := []opcode.Instruction{
+		{
+			Opcode: opcode.LOAD_CONST,
+			Arg:    0,
+			Args:   a,
+		},
+		{
+			Opcode: opcode.LOAD_CONST,
+			Arg:    0,
+			Args:   b,
+		},
+		{
+			Opcode: opcode.BINARY_SUBSTRACT,
 			Arg:    0,
 			Args:   builtin.PyEq,
 		},

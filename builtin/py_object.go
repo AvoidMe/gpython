@@ -10,3 +10,8 @@ type PyBinaryAdd interface {
 	PyObject
 	BinaryAdd(PyObject) PyObject // __add__ method
 }
+
+type PyBinarySubstract interface {
+	PyObject
+	BinarySubstract(PyObject) PyObject // __sub__ method
+}

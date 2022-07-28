@@ -50,3 +50,16 @@ func (self *PyFloat) BinaryAdd(b PyObject) PyObject {
 		panic("Can't add number and non-number") // TODO: properly handle an error
 	}
 }
+
+func (self *PyFloat) BinarySubstract(b PyObject) PyObject {
+	switch bb := b.(type) {
+	case *PyFloat:
+		return &PyFloat{Value: self.Value - bb.Value}
+	case *PyInt:
+		return &PyFloat{Value: self.Value - float64(bb.Value)}
+	case *PyBool:
+		return &PyFloat{Value: self.Value - float64(bb.IntValue())}
+	default:
+		panic("Can't substract number and non-number") // TODO: properly handle an error
+	}
+}

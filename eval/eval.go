@@ -9,6 +9,7 @@ import (
 
 func EvalInstructions(instructions []opcode.Instruction) builtin.PyObject {
 	var returnValue builtin.PyObject
+	returnValue = builtin.PyNone
 	frame := Frame{
 		Stack:  builtin.PyList{},
 		Locals: map[string]builtin.PyObject{},
@@ -19,6 +20,7 @@ func EvalInstructions(instructions []opcode.Instruction) builtin.PyObject {
 		switch instruction.Opcode {
 		case opcode.POP_TOP:
 			frame.Stack.Pop()
+		case opcode.NOP:
 		case opcode.BINARY_ADD:
 			// Main idea for custom objects is:
 			//	handle error while casting like this:
@@ -28,6 +30,11 @@ func EvalInstructions(instructions []opcode.Instruction) builtin.PyObject {
 			a := frame.Stack.Pop()
 			b := frame.Stack.Pop().(builtin.PyBinaryAdd) // TODO: error handling
 			result := b.BinaryAdd(a)                     // TODO: error handling
+			frame.Stack.Append(result)
+		case opcode.BINARY_SUBSTRACT:
+			a := frame.Stack.Pop()
+			b := frame.Stack.Pop().(builtin.PyBinarySubstract) // TODO: error handling
+			result := b.BinarySubstract(a)                     // TODO: error handling
 			frame.Stack.Append(result)
 		case opcode.STORE_NAME:
 			value := frame.Stack.Pop()
