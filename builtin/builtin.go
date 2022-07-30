@@ -13,7 +13,7 @@ var Builtin = map[string]PyObject{
 }
 
 func GPythonPrint(args PyObject, kwnames PyObject) PyObject {
-	GPythonPrintImplementation(args, &PyString{Value: " "}, &PyString{Value: "\n"}, PyNone, false)
+	GPythonPrintImplementation(args, NewPyString(" "), NewPyString("\n"), PyNone, false)
 	return PyNone
 }
 

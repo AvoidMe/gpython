@@ -16,9 +16,9 @@ func TestEmptyDict(t *testing.T) {
 func TestDictSetItem(t *testing.T) {
 	// Generic cases with every hashable python type as key
 	cases := [][]builtin.PyObject{
-		{&builtin.PyString{Value: "a"}, &builtin.PyInt{Value: 1}},
-		{&builtin.PyString{Value: "b"}, &builtin.PyInt{Value: 2}},
-		{&builtin.PyString{Value: "c"}, &builtin.PyInt{Value: 3}},
+		{builtin.NewPyString("a"), &builtin.PyInt{Value: 1}},
+		{builtin.NewPyString("b"), &builtin.PyInt{Value: 2}},
+		{builtin.NewPyString("c"), &builtin.PyInt{Value: 3}},
 		{&builtin.PyInt{Value: 100}, &builtin.PyInt{Value: 4}},
 		{&builtin.PyInt{Value: 101}, &builtin.PyInt{Value: 5}},
 		{&builtin.PyInt{Value: 102}, &builtin.PyInt{Value: 6}},
@@ -32,10 +32,10 @@ func TestDictSetItem(t *testing.T) {
 	_genericDictTest(cases, cases, t)
 	// Override value cases
 	input := [][]builtin.PyObject{
-		{&builtin.PyString{Value: "a"}, &builtin.PyInt{Value: 1}},
-		{&builtin.PyString{Value: "a"}, &builtin.PyInt{Value: 123}},
-		{&builtin.PyInt{Value: 100}, &builtin.PyString{Value: "hello"}},
-		{&builtin.PyInt{Value: 100}, &builtin.PyString{Value: "world"}},
+		{builtin.NewPyString("a"), &builtin.PyInt{Value: 1}},
+		{builtin.NewPyString("a"), &builtin.PyInt{Value: 123}},
+		{&builtin.PyInt{Value: 100}, builtin.NewPyString("hello")},
+		{&builtin.PyInt{Value: 100}, builtin.NewPyString("world")},
 		{&builtin.PyFloat{Value: 9997.5}, &builtin.PyInt{Value: 7}},
 		{&builtin.PyFloat{Value: 9997.5}, builtin.PyNone},
 		{builtin.PyNone, &builtin.PyInt{Value: 777}},
@@ -46,8 +46,8 @@ func TestDictSetItem(t *testing.T) {
 		{builtin.PyFalse, &builtin.PyInt{Value: 333}},
 	}
 	expected := [][]builtin.PyObject{
-		{&builtin.PyString{Value: "a"}, &builtin.PyInt{Value: 123}},
-		{&builtin.PyInt{Value: 100}, &builtin.PyString{Value: "world"}},
+		{builtin.NewPyString("a"), &builtin.PyInt{Value: 123}},
+		{&builtin.PyInt{Value: 100}, builtin.NewPyString("world")},
 		{&builtin.PyFloat{Value: 9997.5}, builtin.PyNone},
 		{builtin.PyNone, &builtin.PyInt{Value: 888}},
 		{builtin.PyTrue, &builtin.PyInt{Value: 111}},
@@ -55,55 +55,122 @@ func TestDictSetItem(t *testing.T) {
 	}
 	_genericDictTest(input, expected, t)
 
+	// Simple tuple case
+	input = [][]builtin.PyObject{
+		{
+			&builtin.PyTuple{
+				Value: []builtin.PyObject{
+					&builtin.PyInt{Value: 1},
+					&builtin.PyInt{Value: 2},
+					&builtin.PyInt{Value: 3},
+				},
+			},
+			builtin.NewPyString("Hello pytuple!"),
+		},
+	}
+	expected = [][]builtin.PyObject{
+		{
+			&builtin.PyTuple{
+				Value: []builtin.PyObject{
+					&builtin.PyInt{Value: 1},
+					&builtin.PyInt{Value: 2},
+					&builtin.PyInt{Value: 3},
+				},
+			},
+			builtin.NewPyString("Hello pytuple!"),
+		},
+	}
+	_genericDictTest(input, expected, t)
+
 	// From this point we're testing some tricky cpython cases
 
 	// float(15.0) should be the same key as int(15)
 	input = [][]builtin.PyObject{
-		{&builtin.PyFloat{Value: 15.0}, &builtin.PyString{Value: "hello"}},
-		{&builtin.PyFloat{Value: 15.123}, &builtin.PyString{Value: "world"}},
+		{&builtin.PyFloat{Value: 15.0}, builtin.NewPyString("hello")},
 	}
 	expected = [][]builtin.PyObject{
-		{&builtin.PyInt{Value: 15}, &builtin.PyString{Value: "hello"}},
-		{&builtin.PyFloat{Value: 15.0}, &builtin.PyString{Value: "hello"}},
-		{&builtin.PyFloat{Value: 15.123}, &builtin.PyString{Value: "world"}},
+		{&builtin.PyInt{Value: 15}, builtin.NewPyString("hello")},
+		{&builtin.PyFloat{Value: 15.0}, builtin.NewPyString("hello")},
 	}
 	_genericDictTest(input, expected, t)
 
 	// int(15) should be the same key as float(15.0)
 	input = [][]builtin.PyObject{
-		{&builtin.PyInt{Value: 15}, &builtin.PyString{Value: "hello"}},
-		{&builtin.PyFloat{Value: 15.123}, &builtin.PyString{Value: "world"}},
+		{&builtin.PyInt{Value: 15}, builtin.NewPyString("hello")},
 	}
 	expected = [][]builtin.PyObject{
-		{&builtin.PyInt{Value: 15}, &builtin.PyString{Value: "hello"}},
-		{&builtin.PyFloat{Value: 15.0}, &builtin.PyString{Value: "hello"}},
-		{&builtin.PyFloat{Value: 15.123}, &builtin.PyString{Value: "world"}},
+		{&builtin.PyInt{Value: 15}, builtin.NewPyString("hello")},
+		{&builtin.PyFloat{Value: 15.0}, builtin.NewPyString("hello")},
 	}
 	_genericDictTest(input, expected, t)
 
 	// True should be the same key as int(1) and float(1.0)
 	input = [][]builtin.PyObject{
-		{builtin.PyTrue, &builtin.PyString{Value: "hello true"}},
+		{builtin.PyTrue, builtin.NewPyString("hello true")},
 	}
 	expected = [][]builtin.PyObject{
-		{builtin.PyTrue, &builtin.PyString{Value: "hello true"}},
-		{&builtin.PyInt{Value: 1}, &builtin.PyString{Value: "hello true"}},
-		{&builtin.PyFloat{Value: 1}, &builtin.PyString{Value: "hello true"}},
+		{builtin.PyTrue, builtin.NewPyString("hello true")},
+		{&builtin.PyInt{Value: 1}, builtin.NewPyString("hello true")},
+		{&builtin.PyFloat{Value: 1}, builtin.NewPyString("hello true")},
 	}
 	_genericDictTest(input, expected, t)
 
 	// False should be the same key as int(0) and float(0.0)
 	input = [][]builtin.PyObject{
-		{builtin.PyFalse, &builtin.PyString{Value: "hello false"}},
+		{builtin.PyFalse, builtin.NewPyString("hello false")},
 	}
 	expected = [][]builtin.PyObject{
-		{builtin.PyFalse, &builtin.PyString{Value: "hello false"}},
-		{&builtin.PyInt{Value: 0}, &builtin.PyString{Value: "hello false"}},
-		{&builtin.PyFloat{Value: 0}, &builtin.PyString{Value: "hello false"}},
+		{builtin.PyFalse, builtin.NewPyString("hello false")},
+		{&builtin.PyInt{Value: 0}, builtin.NewPyString("hello false")},
+		{&builtin.PyFloat{Value: 0}, builtin.NewPyString("hello false")},
 	}
 	_genericDictTest(input, expected, t)
 
+	// int(1) should be the same key as True and float(1)
+	input = [][]builtin.PyObject{
+		{&builtin.PyInt{Value: 1}, builtin.NewPyString("hello int(1)")},
+	}
+	expected = [][]builtin.PyObject{
+		{builtin.PyTrue, builtin.NewPyString("hello int(1)")},
+		{&builtin.PyInt{Value: 1}, builtin.NewPyString("hello int(1)")},
+		{&builtin.PyFloat{Value: 1}, builtin.NewPyString("hello int(1)")},
+	}
+	_genericDictTest(input, expected, t)
+
+	// float(1) should be the same key as True and int(1)
+	input = [][]builtin.PyObject{
+		{&builtin.PyFloat{Value: 1}, builtin.NewPyString("hello float(1)")},
+	}
+	expected = [][]builtin.PyObject{
+		{builtin.PyTrue, builtin.NewPyString("hello float(1)")},
+		{&builtin.PyInt{Value: 1}, builtin.NewPyString("hello float(1)")},
+		{&builtin.PyFloat{Value: 1}, builtin.NewPyString("hello float(1)")},
+	}
+	_genericDictTest(input, expected, t)
+
+	// int(0) should be the same key as False and float(0)
+	input = [][]builtin.PyObject{
+		{&builtin.PyInt{Value: 0}, builtin.NewPyString("hello int(0)")},
+	}
+	expected = [][]builtin.PyObject{
+		{builtin.PyFalse, builtin.NewPyString("hello int(0)")},
+		{&builtin.PyInt{Value: 0}, builtin.NewPyString("hello int(0)")},
+		{&builtin.PyFloat{Value: 0}, builtin.NewPyString("hello int(0)")},
+	}
+	_genericDictTest(input, expected, t)
+
+	// float(0) should be the same key as False and int(0)
+	input = [][]builtin.PyObject{
+		{&builtin.PyFloat{Value: 0}, builtin.NewPyString("hello float(0)")},
+	}
+	expected = [][]builtin.PyObject{
+		{builtin.PyFalse, builtin.NewPyString("hello float(0)")},
+		{&builtin.PyInt{Value: 0}, builtin.NewPyString("hello float(0)")},
+		{&builtin.PyFloat{Value: 0}, builtin.NewPyString("hello float(0)")},
+	}
+	_genericDictTest(input, expected, t)
 	// TODO: add error tests
+	// TODO: add functions as dict keys/values
 }
 
 func _genericDictTest(input [][]builtin.PyObject, expectedList [][]builtin.PyObject, t *testing.T) {

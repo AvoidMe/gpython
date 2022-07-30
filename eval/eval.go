@@ -1,6 +1,7 @@
 package eval
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/AvoidMe/gpython/builtin"
@@ -50,17 +51,17 @@ func EvalInstructions(instructions []opcode.Instruction) builtin.PyObject {
 			frame.Stack.Append(container)
 		case opcode.STORE_NAME:
 			value := frame.Stack.Pop()
-			frame.Locals[instruction.Args.(*builtin.PyString).Value] = value
+			frame.Locals[instruction.Args.(*builtin.PyString).String()] = value
 		case opcode.LOAD_CONST:
 			frame.Stack.Append(instruction.Args)
 		case opcode.LOAD_NAME:
 			name := instruction.Args.(*builtin.PyString)
-			value, success := frame.Locals[name.Value]
+			value, success := frame.Locals[name.String()]
 			if success {
 				frame.Stack.Append(value)
 			} else {
 				frame.Stack.Append(
-					builtin.Builtin[name.Value],
+					builtin.Builtin[name.String()],
 				)
 			}
 		case opcode.BUILD_LIST:
@@ -78,8 +79,8 @@ func EvalInstructions(instructions []opcode.Instruction) builtin.PyObject {
 		case opcode.COMPARE_OP:
 			a := frame.Stack.Pop()
 			b := frame.Stack.Pop()
-			switch instruction.Args.(*builtin.PyString).Value {
-			case builtin.PyEq.Value:
+			switch instruction.Args.(*builtin.PyString).String() {
+			case builtin.PyEq.String():
 				frame.Stack.Append(a.Equal(b))
 			default:
 				panic("Not implemented comparsion opcode")
@@ -107,14 +108,14 @@ func EvalInstructions(instructions []opcode.Instruction) builtin.PyObject {
 			}
 			frame.Stack.Append(dict)
 		case opcode.LIST_EXTEND:
-			args := frame.Stack.Pop().(*builtin.PyList)
+			args := frame.Stack.Pop().(builtin.PyIterable)
 			list := frame.Stack.Pop().(*builtin.PyList)
-			list.Extend(args.Value)
+			list.Extend(args)
 			frame.Stack.Append(list)
 		case opcode.RETURN_VALUE:
 			returnValue = frame.Stack.Pop()
 		default:
-			log.Printf("Undefined opcode: %v\n", instruction)
+			panic(fmt.Sprintf("Undefined opcode: %v", instruction))
 		}
 	}
 	return returnValue

@@ -18,7 +18,7 @@ type PythonBytecode struct {
 	Is_jump_target bool
 }
 
-func jsonTypeToPy(value interface{}) builtin.PyObject {
+func jsonTypeToPy(value interface{}, repr string) builtin.PyObject {
 	switch v := value.(type) {
 	case bool:
 		if v {
@@ -27,7 +27,7 @@ func jsonTypeToPy(value interface{}) builtin.PyObject {
 			return builtin.PyFalse
 		}
 	case string:
-		return &builtin.PyString{Value: v}
+		return &builtin.PyString{Value: []rune(v)}
 	case float64:
 		// Golang unmarshal treats every JSON number as float64:
 		// https://pkg.go.dev/encoding/json#Unmarshal
@@ -38,11 +38,14 @@ func jsonTypeToPy(value interface{}) builtin.PyObject {
 			return &builtin.PyFloat{Value: v}
 		}
 	case []interface{}:
-		list := &builtin.PyList{Value: []builtin.PyObject{}}
+		value := []builtin.PyObject{}
 		for i := 0; i < len(v); i++ {
-			list.Append(jsonTypeToPy(v[i]))
+			value = append(value, jsonTypeToPy(v[i], repr))
 		}
-		return list
+		if repr[0] == '(' {
+			return &builtin.PyTuple{Value: value}
+		}
+		return &builtin.PyList{Value: value}
 	default:
 		panic("Json has undefined type")
 	}
@@ -56,7 +59,7 @@ func LoadJson() []opcode.Instruction {
 	for _, value := range bytecode {
 		op := opcode.Instruction{Opcode: value.Opcode, Arg: value.Arg}
 		if value.Argval != nil {
-			op.Args = jsonTypeToPy(value.Argval)
+			op.Args = jsonTypeToPy(value.Argval, value.Argrepr)
 		} else {
 			op.Args = builtin.PyNone
 		}

@@ -34,8 +34,16 @@ func (self *PyList) Append(value PyObject) {
 	self.Value = append(self.Value, value)
 }
 
-func (self *PyList) Extend(values []PyObject) {
-	self.Value = append(self.Value, values...)
+func (self *PyList) Extend(value PyIterable) {
+	iterator := value.Iter()
+	for {
+		value, err := iterator.Next()
+		if err == nil {
+			self.Value = append(self.Value, value)
+		} else {
+			return
+		}
+	}
 }
 
 func (self *PyList) String() string {
@@ -83,4 +91,8 @@ func (self *PyList) BinaryAdd(b PyObject) PyObject {
 	result = append(result, self.Value...)
 	result = append(result, bList.Value...)
 	return &PyList{Value: result}
+}
+
+func (self *PyList) Iter() PyIterator {
+	return &PyListIterator{self, 0}
 }

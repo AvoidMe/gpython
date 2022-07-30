@@ -7,6 +7,7 @@ import (
 )
 
 // TODO: add negative test cases
+// TODO: add functions as list value
 func TestEmptyList(t *testing.T) {
 	l := &builtin.PyList{}
 	if l.String() != "[]" {
@@ -41,24 +42,24 @@ func TestListSetItem(t *testing.T) {
 		builtin.PyFalse,
 	}
 	setCases := []listCase{
-		{1, &builtin.PyString{Value: "first"}},
-		{5, &builtin.PyString{Value: "last"}},
+		{1, builtin.NewPyString("first")},
+		{5, builtin.NewPyString("last")},
 		{6, builtin.PyTrue},
-		{11, &builtin.PyString{Value: "Miss me?"}},
+		{11, builtin.NewPyString("Miss me?")},
 	}
 	expected := []builtin.PyObject{
 		&builtin.PyInt{Value: 0},
-		&builtin.PyString{Value: "first"},
+		builtin.NewPyString("first"),
 		&builtin.PyInt{Value: 2},
 		&builtin.PyInt{Value: 3},
 		&builtin.PyInt{Value: 4},
-		&builtin.PyString{Value: "last"},
+		builtin.NewPyString("last"),
 		builtin.PyTrue,
 		builtin.PyNone,
 		builtin.PyNone,
 		builtin.PyNone,
 		&builtin.PyFloat{Value: 11.111},
-		&builtin.PyString{Value: "Miss me?"},
+		builtin.NewPyString("Miss me?"),
 		&builtin.PyFloat{Value: 33.333},
 		&builtin.PyFloat{Value: 44.444},
 		builtin.PyTrue,

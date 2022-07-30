@@ -97,22 +97,22 @@ func TestReturnValue(t *testing.T) {
 func TestListExtend(t *testing.T) {
 	firstList := builtin.PyList{
 		Value: []builtin.PyObject{
-			&builtin.PyString{Value: "First"},
-			&builtin.PyString{Value: "Second"},
+			builtin.NewPyString("First"),
+			builtin.NewPyString("Second"),
 		},
 	}
 	secondList := builtin.PyList{
 		Value: []builtin.PyObject{
-			&builtin.PyString{Value: "Third"},
-			&builtin.PyString{Value: "Fourth"},
+			builtin.NewPyString("Third"),
+			builtin.NewPyString("Fourth"),
 		},
 	}
 	expected := builtin.PyList{
 		Value: []builtin.PyObject{
-			&builtin.PyString{Value: "First"},
-			&builtin.PyString{Value: "Second"},
-			&builtin.PyString{Value: "Third"},
-			&builtin.PyString{Value: "Fourth"},
+			builtin.NewPyString("First"),
+			builtin.NewPyString("Second"),
+			builtin.NewPyString("Third"),
+			builtin.NewPyString("Fourth"),
 		},
 	}
 	input := []opcode.Instruction{
@@ -146,32 +146,32 @@ func TestListExtend(t *testing.T) {
 func TestBuildList(t *testing.T) {
 	expected := builtin.PyList{
 		Value: []builtin.PyObject{
-			&builtin.PyString{Value: "First"},
-			&builtin.PyString{Value: "Second"},
-			&builtin.PyString{Value: "Third"},
-			&builtin.PyString{Value: "Fourth"},
+			builtin.NewPyString("First"),
+			builtin.NewPyString("Second"),
+			builtin.NewPyString("Third"),
+			builtin.NewPyString("Fourth"),
 		},
 	}
 	input := []opcode.Instruction{
 		{
 			Opcode: opcode.LOAD_CONST,
 			Arg:    0,
-			Args:   &builtin.PyString{Value: "First"},
+			Args:   builtin.NewPyString("First"),
 		},
 		{
 			Opcode: opcode.LOAD_CONST,
 			Arg:    0,
-			Args:   &builtin.PyString{Value: "Second"},
+			Args:   builtin.NewPyString("Second"),
 		},
 		{
 			Opcode: opcode.LOAD_CONST,
 			Arg:    0,
-			Args:   &builtin.PyString{Value: "Third"},
+			Args:   builtin.NewPyString("Third"),
 		},
 		{
 			Opcode: opcode.LOAD_CONST,
 			Arg:    0,
-			Args:   &builtin.PyString{Value: "Fourth"},
+			Args:   builtin.NewPyString("Fourth"),
 		},
 		{
 			Opcode: opcode.BUILD_LIST,
@@ -201,12 +201,12 @@ func TestStoreLocalName(t *testing.T) {
 		{
 			Opcode: opcode.STORE_NAME,
 			Arg:    0,
-			Args:   &builtin.PyString{Value: "x"},
+			Args:   builtin.NewPyString("x"),
 		},
 		{
 			Opcode: opcode.LOAD_NAME,
 			Arg:    0,
-			Args:   &builtin.PyString{Value: "x"},
+			Args:   builtin.NewPyString("x"),
 		},
 		{
 			Opcode: opcode.RETURN_VALUE,
@@ -261,9 +261,9 @@ func TestPopTop(t *testing.T) {
 func TestBinaryAdd(t *testing.T) {
 	cases := []binaryTestCase{
 		{
-			&builtin.PyString{Value: "Hello"},
-			&builtin.PyString{Value: ", world!"},
-			&builtin.PyString{Value: "Hello, world!"},
+			builtin.NewPyString("Hello"),
+			builtin.NewPyString(", world!"),
+			builtin.NewPyString("Hello, world!"),
 		},
 		{
 			&builtin.PyInt{Value: 10},
@@ -501,14 +501,14 @@ func TestCompareOpEqual(t *testing.T) {
 	cases := []binaryTestCase{
 		// None
 		{builtin.PyNone, builtin.PyNone, builtin.PyTrue},
-		{builtin.PyNone, &builtin.PyString{Value: "testy"}, builtin.PyFalse},
+		{builtin.PyNone, builtin.NewPyString("testy"), builtin.PyFalse},
 		// bool == bool
 		{builtin.PyTrue, builtin.PyTrue, builtin.PyTrue},
 		{builtin.PyTrue, builtin.PyFalse, builtin.PyFalse},
 		{builtin.PyFalse, builtin.PyTrue, builtin.PyFalse},
 		{builtin.PyFalse, builtin.PyFalse, builtin.PyTrue},
 		// bool == unexpected_type
-		{builtin.PyTrue, &builtin.PyString{Value: "testy"}, builtin.PyFalse},
+		{builtin.PyTrue, builtin.NewPyString("testy"), builtin.PyFalse},
 		// bool == int
 		{builtin.PyTrue, &builtin.PyInt{Value: 1}, builtin.PyTrue},
 		{builtin.PyTrue, &builtin.PyInt{Value: 0}, builtin.PyFalse},
@@ -528,7 +528,7 @@ func TestCompareOpEqual(t *testing.T) {
 		{&builtin.PyInt{Value: 42}, &builtin.PyInt{Value: 42}, builtin.PyTrue},
 		{&builtin.PyInt{Value: 42}, &builtin.PyInt{Value: 444}, builtin.PyFalse},
 		// int == unexpected_type
-		{&builtin.PyInt{Value: 42}, &builtin.PyString{Value: "testy"}, builtin.PyFalse},
+		{&builtin.PyInt{Value: 42}, builtin.NewPyString("testy"), builtin.PyFalse},
 		// int == float
 		{&builtin.PyInt{Value: 42}, &builtin.PyFloat{Value: 42.0}, builtin.PyTrue},
 		{&builtin.PyInt{Value: 42}, &builtin.PyFloat{Value: 42.5}, builtin.PyFalse},
@@ -544,38 +544,38 @@ func TestCompareOpEqual(t *testing.T) {
 		{&builtin.PyFloat{Value: 1.0}, builtin.PyFalse, builtin.PyFalse},
 		{&builtin.PyFloat{Value: 0.0}, builtin.PyFalse, builtin.PyTrue},
 		// float == unextected_type
-		{&builtin.PyFloat{Value: 42.5}, &builtin.PyString{Value: "testy"}, builtin.PyFalse},
+		{&builtin.PyFloat{Value: 42.5}, builtin.NewPyString("testy"), builtin.PyFalse},
 
 		// function == function
 		{builtin.Builtin["print"], builtin.Builtin["print"], builtin.PyTrue},
 		// TODO: function == function -> PyFals
 
 		// function == unexpected_type
-		{builtin.Builtin["print"], &builtin.PyString{Value: "testy"}, builtin.PyFalse},
+		{builtin.Builtin["print"], builtin.NewPyString("testy"), builtin.PyFalse},
 		// list == unexpected_type
 		{
 			&builtin.PyList{Value: []builtin.PyObject{
-				&builtin.PyString{Value: "testy"}},
+				builtin.NewPyString("testy")},
 			},
-			&builtin.PyString{Value: "testy"},
+			builtin.NewPyString("testy"),
 			builtin.PyFalse,
 		},
 		// list == list
 		{
 			&builtin.PyList{Value: []builtin.PyObject{
-				&builtin.PyString{Value: "testy"}},
+				builtin.NewPyString("testy")},
 			},
 			&builtin.PyList{Value: []builtin.PyObject{
-				&builtin.PyString{Value: "testy_test_test"}},
+				builtin.NewPyString("testy_test_test")},
 			},
 			builtin.PyFalse,
 		},
 		{
 			&builtin.PyList{Value: []builtin.PyObject{
-				&builtin.PyString{Value: "testy"}},
+				builtin.NewPyString("testy")},
 			},
 			&builtin.PyList{Value: []builtin.PyObject{
-				&builtin.PyString{Value: "testy"}},
+				builtin.NewPyString("testy")},
 			},
 			builtin.PyTrue,
 		},
@@ -583,36 +583,36 @@ func TestCompareOpEqual(t *testing.T) {
 		{
 			&builtin.PyList{
 				Value: []builtin.PyObject{
-					&builtin.PyString{Value: "testy"},
+					builtin.NewPyString("testy"),
 					&builtin.PyList{
 						Value: []builtin.PyObject{
-							&builtin.PyString{Value: "testy"},
+							builtin.NewPyString("testy"),
 						},
 					},
 				},
 			},
 			&builtin.PyList{Value: []builtin.PyObject{
-				&builtin.PyString{Value: "testy"}},
+				builtin.NewPyString("testy")},
 			},
 			builtin.PyFalse,
 		},
 		{
 			&builtin.PyList{
 				Value: []builtin.PyObject{
-					&builtin.PyString{Value: "testy"},
+					builtin.NewPyString("testy"),
 					&builtin.PyList{
 						Value: []builtin.PyObject{
-							&builtin.PyString{Value: "testy"},
+							builtin.NewPyString("testy"),
 						},
 					},
 				},
 			},
 			&builtin.PyList{
 				Value: []builtin.PyObject{
-					&builtin.PyString{Value: "testy"},
+					builtin.NewPyString("testy"),
 					&builtin.PyList{
 						Value: []builtin.PyObject{
-							&builtin.PyString{Value: "testy"},
+							builtin.NewPyString("testy"),
 						},
 					},
 				},
@@ -660,46 +660,46 @@ func _testCompareOpEqual(t *testing.T, a builtin.PyObject, b builtin.PyObject, e
 
 func TestIsOp(t *testing.T) {
 	listItem := &builtin.PyList{Value: []builtin.PyObject{
-		&builtin.PyString{Value: "testy"},
+		builtin.NewPyString("testy"),
 	}}
 	intItem := &builtin.PyInt{Value: 42}
 	floatItem := &builtin.PyFloat{Value: 42.5}
 	cases := []binaryTestCase{
 		// None
 		{builtin.PyNone, builtin.PyNone, builtin.PyTrue},
-		{builtin.PyNone, &builtin.PyString{Value: "testy"}, builtin.PyFalse},
+		{builtin.PyNone, builtin.NewPyString("testy"), builtin.PyFalse},
 		// bool is bool
 		{builtin.PyTrue, builtin.PyTrue, builtin.PyTrue},
 		{builtin.PyTrue, builtin.PyFalse, builtin.PyFalse},
 		{builtin.PyFalse, builtin.PyTrue, builtin.PyFalse},
 		{builtin.PyFalse, builtin.PyFalse, builtin.PyTrue},
 		// bool is unexpected_type
-		{builtin.PyTrue, &builtin.PyString{Value: "testy"}, builtin.PyFalse},
+		{builtin.PyTrue, builtin.NewPyString("testy"), builtin.PyFalse},
 		// int is int
 		{intItem, intItem, builtin.PyTrue},
 		{&builtin.PyInt{Value: 9999999}, intItem, builtin.PyFalse},
 		// int is unexpected_type
-		{&builtin.PyInt{Value: 42}, &builtin.PyString{Value: "testy"}, builtin.PyFalse},
+		{&builtin.PyInt{Value: 42}, builtin.NewPyString("testy"), builtin.PyFalse},
 		// float is float
 		{floatItem, floatItem, builtin.PyTrue},
 		{&builtin.PyFloat{Value: 42.5}, &builtin.PyFloat{Value: 42.5}, builtin.PyFalse},
 		// float is unextected_type
-		{&builtin.PyFloat{Value: 42.5}, &builtin.PyString{Value: "testy"}, builtin.PyFalse},
+		{&builtin.PyFloat{Value: 42.5}, builtin.NewPyString("testy"), builtin.PyFalse},
 		// function is function
 		{builtin.Builtin["print"], builtin.Builtin["print"], builtin.PyTrue},
 		// TODO: function is function -> PyFalse
 		// function is unexpected_type
-		{builtin.Builtin["print"], &builtin.PyString{Value: "testy"}, builtin.PyFalse},
+		{builtin.Builtin["print"], builtin.NewPyString("testy"), builtin.PyFalse},
 		// list is unexpected_type
-		{listItem, &builtin.PyString{Value: "testy"}, builtin.PyFalse},
+		{listItem, builtin.NewPyString("testy"), builtin.PyFalse},
 		// list is list
 		{listItem, listItem, builtin.PyTrue},
 		{
 			&builtin.PyList{Value: []builtin.PyObject{
-				&builtin.PyString{Value: "testy"}},
+				builtin.NewPyString("testy")},
 			},
 			&builtin.PyList{Value: []builtin.PyObject{
-				&builtin.PyString{Value: "testy"}},
+				builtin.NewPyString("testy")},
 			},
 			builtin.PyFalse,
 		},

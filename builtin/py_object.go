@@ -26,3 +26,13 @@ type PyGetItem interface {
 	PyObject
 	GetItem(PyObject) (PyObject, error)
 }
+
+type PyIterable interface {
+	PyObject
+	Iter() PyIterator // __iter__ method
+}
+
+type PyIterator interface {
+	PyIterable
+	Next() (PyObject, error) // __next__ method
+}

@@ -5,4 +5,4 @@ var PyFalse = &PyBool{Value: false}
 
 var PyNone = &NoneType{}
 
-var PyEq = &PyString{Value: "=="}
+var PyEq = NewPyString("==")
