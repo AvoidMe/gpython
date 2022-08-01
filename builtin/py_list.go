@@ -13,14 +13,14 @@ func (self *PyList) Pop() PyObject {
 }
 
 func (self *PyList) SetItem(index PyObject, value PyObject) error {
-	itemIndex := index.(*PyInt)         // TODO: add error handling
-	self.Value[itemIndex.Value] = value // TODO: add index checking
+	itemIndex := index.(*PyInt)           // TODO: add error handling
+	self.Value[itemIndex.Int64()] = value // TODO: add index checking
 	return nil
 }
 
 func (self *PyList) GetItem(index PyObject) (PyObject, error) {
-	itemIndex := index.(*PyInt)             // TODO: add error handling
-	return self.Value[itemIndex.Value], nil // TODO: add index checking
+	itemIndex := index.(*PyInt)               // TODO: add error handling
+	return self.Value[itemIndex.Int64()], nil // TODO: add index checking
 }
 
 func (self *PyList) PopN(n int) []PyObject {
@@ -61,7 +61,7 @@ func (self *PyList) Repr() string {
 	return self.String()
 }
 
-func (self *PyList) Hash() (uint64, error) {
+func (self *PyList) Hash() (int64, error) {
 	return 0, errors.New("unhashable type: 'list'") // TODO: move to TypeError
 }
 

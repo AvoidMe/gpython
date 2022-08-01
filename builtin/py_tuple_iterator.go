@@ -19,8 +19,8 @@ func (self *PyTupleIterator) String() string {
 	return self.Repr()
 }
 
-func (self *PyTupleIterator) Hash() (uint64, error) {
-	return *(*uint64)(unsafe.Pointer(self)), nil
+func (self *PyTupleIterator) Hash() (int64, error) {
+	return *(*int64)(unsafe.Pointer(self)), nil
 }
 
 func (self *PyTupleIterator) Equal(other PyObject) *PyBool {

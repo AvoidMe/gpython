@@ -25,14 +25,14 @@ func (self *PyFloat) Repr() string {
 	return fmt.Sprintf("%v", self.Value)
 }
 
-func (self *PyFloat) Hash() (uint64, error) {
-	if float64(uint64(self.Value)) == self.Value {
-		return uint64(self.Value), nil
+func (self *PyFloat) Hash() (int64, error) {
+	if float64(int64(self.Value)) == self.Value {
+		return int64(self.Value), nil
 	}
 	h := maphash.Hash{}
 	h.SetSeed(*GetPyHashSeed())
 	h.Write(float64ToByte(self.Value))
-	return h.Sum64(), nil
+	return int64(h.Sum64()), nil
 }
 
 func (self *PyFloat) Equal(b PyObject) *PyBool {
@@ -43,12 +43,12 @@ func (self *PyFloat) Equal(b PyObject) *PyBool {
 		}
 		return PyFalse
 	case *PyInt:
-		if float64(bb.Value) == self.Value {
+		if float64(bb.Int64()) == self.Value {
 			return PyTrue
 		}
 		return PyFalse
 	case *PyBool:
-		if float64(bb.IntValue()) == self.Value {
+		if float64(bb.IntValue().Int64()) == self.Value {
 			return PyTrue
 		}
 		return PyFalse
@@ -62,9 +62,9 @@ func (self *PyFloat) BinaryAdd(b PyObject) PyObject {
 	case *PyFloat:
 		return &PyFloat{Value: bb.Value + self.Value}
 	case *PyInt:
-		return &PyFloat{Value: self.Value + float64(bb.Value)}
+		return &PyFloat{Value: self.Value + float64(bb.Int64())}
 	case *PyBool:
-		return &PyFloat{Value: float64(bb.IntValue()) + self.Value}
+		return &PyFloat{Value: float64(bb.IntValue().Int64()) + self.Value}
 	default:
 		panic("Can't add number and non-number") // TODO: properly handle an error
 	}
@@ -75,9 +75,11 @@ func (self *PyFloat) BinarySubstract(b PyObject) PyObject {
 	case *PyFloat:
 		return &PyFloat{Value: self.Value - bb.Value}
 	case *PyInt:
-		return &PyFloat{Value: self.Value - float64(bb.Value)}
+		// TODO: this is probably wrong
+		return &PyFloat{Value: self.Value - float64(bb.Int64())}
 	case *PyBool:
-		return &PyFloat{Value: self.Value - float64(bb.IntValue())}
+		// TODO: this is probably wrong
+		return &PyFloat{Value: self.Value - float64(bb.IntValue().Int64())}
 	default:
 		panic("Can't substract number and non-number") // TODO: properly handle an error
 	}

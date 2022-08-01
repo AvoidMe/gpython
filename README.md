@@ -20,7 +20,7 @@ python python_to_instructions.py hello_world.py output.json && go run main.go
     * dict
     * tuple
     * str
-    * int *(right now backend is just int64)
+    * int
     * float
     * function
     * bool
@@ -30,9 +30,6 @@ python python_to_instructions.py hello_world.py output.json && go run main.go
 
 # Roadmap
 
-* Right now I use my python-written pseudo-compiller to run things, I want to implement *.pyc parser and run python files from it. In the future I will implement full-fledged python parser, but for now *.pyc will work.
-* CPython hash can be negative numbers, but I used uint64, move it to regular int64.
-* PyInt implementation right now is based on int64, which is incompattible with python, add a infinity number library and use it as a PyInt backend.
 * Clean-up non-exception related TODO's.
 * Add exceptions and cleanup exception-related TODO's
 

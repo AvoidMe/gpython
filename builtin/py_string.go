@@ -26,11 +26,11 @@ func (self *PyString) Equal(b PyObject) *PyBool {
 	}
 }
 
-func (self *PyString) Hash() (uint64, error) {
+func (self *PyString) Hash() (int64, error) {
 	h := maphash.Hash{}
 	h.SetSeed(*GetPyHashSeed())
 	h.WriteString(self.String())
-	return h.Sum64(), nil
+	return int64(h.Sum64()), nil
 }
 
 func (self *PyString) BinaryAdd(b PyObject) PyObject {

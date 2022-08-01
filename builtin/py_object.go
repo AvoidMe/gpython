@@ -3,7 +3,7 @@ package builtin
 type PyObject interface {
 	Repr() string
 	String() string
-	Hash() (uint64, error)
+	Hash() (int64, error)
 	Equal(PyObject) *PyBool // __eq__ method
 }
 

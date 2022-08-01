@@ -15,29 +15,26 @@ func (self *PyBool) Repr() string {
 	return self.String()
 }
 
-func (self *PyBool) IntValue() int64 {
+func (self *PyBool) IntValue() *PyInt {
 	if self.Value {
-		return 1
+		return NewPyInt(1)
 	}
-	return 0
+	return NewPyInt(0)
 }
 
-func (self *PyBool) Hash() (uint64, error) {
-	return uint64(self.IntValue()), nil
+func (self *PyBool) Hash() (int64, error) {
+	return self.IntValue().Hash()
 }
 
 func (self *PyBool) Equal(b PyObject) *PyBool {
 	switch bb := b.(type) {
 	case *PyFloat:
-		if bb.Value == float64(self.IntValue()) {
+		if bb.Value == float64(self.IntValue().Int64()) {
 			return PyTrue
 		}
 		return PyFalse
 	case *PyInt:
-		if bb.Value == self.IntValue() {
-			return PyTrue
-		}
-		return PyFalse
+		return self.IntValue().Equal(bb)
 	case *PyBool:
 		if bb.Value == self.Value {
 			return PyTrue
@@ -51,11 +48,11 @@ func (self *PyBool) Equal(b PyObject) *PyBool {
 func (self *PyBool) BinaryAdd(b PyObject) PyObject {
 	switch bb := b.(type) {
 	case *PyInt:
-		return &PyInt{Value: bb.Value + self.IntValue()}
+		return self.IntValue().BinaryAdd(bb)
 	case *PyFloat:
-		return &PyFloat{Value: bb.Value + float64(self.IntValue())}
+		return self.IntValue().BinaryAdd(bb)
 	case *PyBool:
-		return &PyInt{Value: bb.IntValue() + self.IntValue()}
+		return self.IntValue().BinaryAdd(bb.IntValue())
 	default:
 		panic("Can't add number and non-number") // TODO: properly handle an error
 	}
@@ -64,11 +61,11 @@ func (self *PyBool) BinaryAdd(b PyObject) PyObject {
 func (self *PyBool) BinarySubstract(b PyObject) PyObject {
 	switch bb := b.(type) {
 	case *PyInt:
-		return &PyInt{Value: self.IntValue() - bb.Value}
+		return self.IntValue().BinarySubstract(bb)
 	case *PyFloat:
-		return &PyFloat{Value: float64(self.IntValue()) - bb.Value}
+		return &PyFloat{Value: float64(self.IntValue().Int64()) - bb.Value}
 	case *PyBool:
-		return &PyInt{Value: self.IntValue() - bb.IntValue()}
+		return self.IntValue().BinarySubstract(bb.IntValue())
 	default:
 		panic("Can't substract number and non-number") // TODO: properly handle an error
 	}

@@ -18,7 +18,7 @@ type PyDictKeyValue struct {
 }
 
 type PyDict struct {
-	Value map[uint64][]*PyDictKeyValue
+	Value map[int64][]*PyDictKeyValue
 }
 
 func (self *PyDict) String() string {
@@ -43,7 +43,7 @@ func (self *PyDict) Repr() string {
 	return self.String()
 }
 
-func (self *PyDict) Hash() (uint64, error) {
+func (self *PyDict) Hash() (int64, error) {
 	return 0, errors.New("unhashable type: 'dict'") // TODO: move to TypeError
 }
 
@@ -75,7 +75,7 @@ func (self *PyDict) Equal(b PyObject) *PyBool {
 
 func (self *PyDict) SetItem(key PyObject, value PyObject) error {
 	if self.Value == nil {
-		self.Value = map[uint64][]*PyDictKeyValue{}
+		self.Value = map[int64][]*PyDictKeyValue{}
 	}
 	hash, err := key.Hash()
 	if err != nil {

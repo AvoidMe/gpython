@@ -81,7 +81,7 @@ func EvalInstructions(instructions []opcode.Instruction) builtin.PyObject {
 			b := frame.Stack.Pop()
 			switch instruction.Args.(*builtin.PyString).String() {
 			case builtin.PyEq.String():
-				frame.Stack.Append(a.Equal(b))
+				frame.Stack.Append(b.Equal(a))
 			default:
 				panic("Not implemented comparsion opcode")
 			}
@@ -101,7 +101,7 @@ func EvalInstructions(instructions []opcode.Instruction) builtin.PyObject {
 			dict := &builtin.PyDict{}
 			keys := frame.Stack.Pop().(*builtin.PyList)
 			for i := instruction.Arg - 1; i >= 0; i-- {
-				index := &builtin.PyInt{Value: int64(i)}
+				index := builtin.NewPyInt(int64(i))
 				key, _ := keys.GetItem(index) // TODO: add error checking
 				value := frame.Stack.Pop()
 				dict.SetItem(key, value)

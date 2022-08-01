@@ -21,6 +21,6 @@ func (self *NoneType) Equal(b PyObject) *PyBool {
 	}
 }
 
-func (self *NoneType) Hash() (uint64, error) {
-	return *(*uint64)(unsafe.Pointer(self)), nil
+func (self *NoneType) Hash() (int64, error) {
+	return *(*int64)(unsafe.Pointer(self)), nil
 }

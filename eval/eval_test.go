@@ -76,7 +76,7 @@ func TestReturnValue(t *testing.T) {
 		{
 			Opcode: opcode.LOAD_CONST,
 			Arg:    0,
-			Args:   &builtin.PyInt{Value: expected},
+			Args:   builtin.NewPyInt(expected),
 		},
 		{
 			Opcode: opcode.RETURN_VALUE,
@@ -89,7 +89,7 @@ func TestReturnValue(t *testing.T) {
 	if !ok {
 		t.Errorf("Returns incorrect type: %v", result)
 	}
-	if answer.Value != 42 {
+	if answer.Equal(builtin.NewPyInt(42)) != builtin.PyTrue {
 		t.Errorf("Returns incorrect value: %v", answer)
 	}
 }
@@ -235,7 +235,7 @@ func TestPopTop(t *testing.T) {
 		{
 			Opcode: opcode.LOAD_CONST,
 			Arg:    0,
-			Args:   &builtin.PyInt{Value: 42},
+			Args:   builtin.NewPyInt(42),
 		},
 		{
 			Opcode: opcode.POP_TOP,
@@ -266,18 +266,18 @@ func TestBinaryAdd(t *testing.T) {
 			builtin.NewPyString("Hello, world!"),
 		},
 		{
-			&builtin.PyInt{Value: 10},
-			&builtin.PyInt{Value: 32},
-			&builtin.PyInt{Value: 42},
+			builtin.NewPyInt(10),
+			builtin.NewPyInt(32),
+			builtin.NewPyInt(42),
 		},
 		{
-			&builtin.PyInt{Value: 10},
+			builtin.NewPyInt(10),
 			&builtin.PyFloat{Value: 32.54321},
 			&builtin.PyFloat{Value: 42.54321},
 		},
 		{
 			&builtin.PyFloat{Value: 10.54321},
-			&builtin.PyInt{Value: 32},
+			builtin.NewPyInt(32),
 			&builtin.PyFloat{Value: 42.54321},
 		},
 		{
@@ -288,27 +288,27 @@ func TestBinaryAdd(t *testing.T) {
 		{
 			builtin.PyTrue,
 			builtin.PyFalse,
-			&builtin.PyInt{Value: 1},
+			builtin.NewPyInt(1),
 		},
 		{
 			builtin.PyFalse,
 			builtin.PyFalse,
-			&builtin.PyInt{Value: 0},
+			builtin.NewPyInt(0),
 		},
 		{
 			builtin.PyTrue,
 			builtin.PyTrue,
-			&builtin.PyInt{Value: 2},
+			builtin.NewPyInt(2),
 		},
 		{
 			builtin.PyTrue,
-			&builtin.PyInt{Value: 41},
-			&builtin.PyInt{Value: 42},
+			builtin.NewPyInt(41),
+			builtin.NewPyInt(42),
 		},
 		{
 			builtin.PyFalse,
-			&builtin.PyInt{Value: 41},
-			&builtin.PyInt{Value: 41},
+			builtin.NewPyInt(41),
+			builtin.NewPyInt(41),
 		},
 		{
 			builtin.PyFalse,
@@ -331,14 +331,14 @@ func TestBinaryAdd(t *testing.T) {
 			&builtin.PyFloat{Value: 42.5},
 		},
 		{
-			&builtin.PyInt{Value: 41},
+			builtin.NewPyInt(41),
 			builtin.PyFalse,
-			&builtin.PyInt{Value: 41},
+			builtin.NewPyInt(41),
 		},
 		{
-			&builtin.PyInt{Value: 41},
+			builtin.NewPyInt(41),
 			builtin.PyTrue,
-			&builtin.PyInt{Value: 42},
+			builtin.NewPyInt(42),
 		},
 	}
 	for _, testCase := range cases {
@@ -383,18 +383,18 @@ func _testBinaryAdd(t *testing.T, a builtin.PyObject, b builtin.PyObject, expect
 func TestBinarySubstract(t *testing.T) {
 	cases := []binaryTestCase{
 		{
-			&builtin.PyInt{Value: 52},
-			&builtin.PyInt{Value: 10},
-			&builtin.PyInt{Value: 42},
+			builtin.NewPyInt(52),
+			builtin.NewPyInt(10),
+			builtin.NewPyInt(42),
 		},
 		{
 			&builtin.PyFloat{Value: 52.54321},
-			&builtin.PyInt{Value: 10},
+			builtin.NewPyInt(10),
 			&builtin.PyFloat{Value: 42.54321},
 		},
 		{
 			&builtin.PyFloat{Value: 52.54321},
-			&builtin.PyInt{Value: 10},
+			builtin.NewPyInt(10),
 			&builtin.PyFloat{Value: 42.54321},
 		},
 		{
@@ -405,27 +405,27 @@ func TestBinarySubstract(t *testing.T) {
 		{
 			builtin.PyTrue,
 			builtin.PyFalse,
-			&builtin.PyInt{Value: 1},
+			builtin.NewPyInt(1),
 		},
 		{
 			builtin.PyFalse,
 			builtin.PyFalse,
-			&builtin.PyInt{Value: 0},
+			builtin.NewPyInt(0),
 		},
 		{
 			builtin.PyTrue,
 			builtin.PyTrue,
-			&builtin.PyInt{Value: 0},
+			builtin.NewPyInt(0),
 		},
 		{
 			builtin.PyTrue,
-			&builtin.PyInt{Value: 41},
-			&builtin.PyInt{Value: -40},
+			builtin.NewPyInt(41),
+			builtin.NewPyInt(-40),
 		},
 		{
 			builtin.PyFalse,
-			&builtin.PyInt{Value: 41},
-			&builtin.PyInt{Value: -41},
+			builtin.NewPyInt(41),
+			builtin.NewPyInt(-41),
 		},
 		{
 			builtin.PyFalse,
@@ -448,14 +448,14 @@ func TestBinarySubstract(t *testing.T) {
 			&builtin.PyFloat{Value: 40.5},
 		},
 		{
-			&builtin.PyInt{Value: 41},
+			builtin.NewPyInt(41),
 			builtin.PyFalse,
-			&builtin.PyInt{Value: 41},
+			builtin.NewPyInt(41),
 		},
 		{
-			&builtin.PyInt{Value: 41},
+			builtin.NewPyInt(41),
 			builtin.PyTrue,
-			&builtin.PyInt{Value: 40},
+			builtin.NewPyInt(40),
 		},
 	}
 	for _, testCase := range cases {
@@ -510,31 +510,31 @@ func TestCompareOpEqual(t *testing.T) {
 		// bool == unexpected_type
 		{builtin.PyTrue, builtin.NewPyString("testy"), builtin.PyFalse},
 		// bool == int
-		{builtin.PyTrue, &builtin.PyInt{Value: 1}, builtin.PyTrue},
-		{builtin.PyTrue, &builtin.PyInt{Value: 0}, builtin.PyFalse},
-		{builtin.PyFalse, &builtin.PyInt{Value: 1}, builtin.PyFalse},
-		{builtin.PyFalse, &builtin.PyInt{Value: 0}, builtin.PyTrue},
+		{builtin.PyTrue, builtin.NewPyInt(1), builtin.PyTrue},
+		{builtin.PyTrue, builtin.NewPyInt(0), builtin.PyFalse},
+		{builtin.PyFalse, builtin.NewPyInt(1), builtin.PyFalse},
+		{builtin.PyFalse, builtin.NewPyInt(0), builtin.PyTrue},
 		// bool == float
 		{builtin.PyTrue, &builtin.PyFloat{Value: 1.0}, builtin.PyTrue},
 		{builtin.PyTrue, &builtin.PyFloat{Value: 0.0}, builtin.PyFalse},
 		{builtin.PyFalse, &builtin.PyFloat{Value: 1.0}, builtin.PyFalse},
 		{builtin.PyFalse, &builtin.PyFloat{Value: 0.0}, builtin.PyTrue},
 		// int == bool
-		{&builtin.PyInt{Value: 1}, builtin.PyTrue, builtin.PyTrue},
-		{&builtin.PyInt{Value: 0}, builtin.PyTrue, builtin.PyFalse},
-		{&builtin.PyInt{Value: 1}, builtin.PyFalse, builtin.PyFalse},
-		{&builtin.PyInt{Value: 0}, builtin.PyFalse, builtin.PyTrue},
+		{builtin.NewPyInt(1), builtin.PyTrue, builtin.PyTrue},
+		{builtin.NewPyInt(0), builtin.PyTrue, builtin.PyFalse},
+		{builtin.NewPyInt(1), builtin.PyFalse, builtin.PyFalse},
+		{builtin.NewPyInt(0), builtin.PyFalse, builtin.PyTrue},
 		// int == int
-		{&builtin.PyInt{Value: 42}, &builtin.PyInt{Value: 42}, builtin.PyTrue},
-		{&builtin.PyInt{Value: 42}, &builtin.PyInt{Value: 444}, builtin.PyFalse},
+		{builtin.NewPyInt(42), builtin.NewPyInt(42), builtin.PyTrue},
+		{builtin.NewPyInt(42), builtin.NewPyInt(444), builtin.PyFalse},
 		// int == unexpected_type
-		{&builtin.PyInt{Value: 42}, builtin.NewPyString("testy"), builtin.PyFalse},
+		{builtin.NewPyInt(42), builtin.NewPyString("testy"), builtin.PyFalse},
 		// int == float
-		{&builtin.PyInt{Value: 42}, &builtin.PyFloat{Value: 42.0}, builtin.PyTrue},
-		{&builtin.PyInt{Value: 42}, &builtin.PyFloat{Value: 42.5}, builtin.PyFalse},
+		{builtin.NewPyInt(42), &builtin.PyFloat{Value: 42.0}, builtin.PyTrue},
+		{builtin.NewPyInt(42), &builtin.PyFloat{Value: 42.5}, builtin.PyFalse},
 		// float == int
-		{&builtin.PyFloat{Value: 42.0}, &builtin.PyInt{Value: 42}, builtin.PyTrue},
-		{&builtin.PyFloat{Value: 42.5}, &builtin.PyInt{Value: 42}, builtin.PyFalse},
+		{&builtin.PyFloat{Value: 42.0}, builtin.NewPyInt(42), builtin.PyTrue},
+		{&builtin.PyFloat{Value: 42.5}, builtin.NewPyInt(42), builtin.PyFalse},
 		// float == float
 		{&builtin.PyFloat{Value: 42.5}, &builtin.PyFloat{Value: 42.5}, builtin.PyTrue},
 		{&builtin.PyFloat{Value: 42.5}, &builtin.PyFloat{Value: 42.555}, builtin.PyFalse},
@@ -662,7 +662,7 @@ func TestIsOp(t *testing.T) {
 	listItem := &builtin.PyList{Value: []builtin.PyObject{
 		builtin.NewPyString("testy"),
 	}}
-	intItem := &builtin.PyInt{Value: 42}
+	intItem := builtin.NewPyInt(42)
 	floatItem := &builtin.PyFloat{Value: 42.5}
 	cases := []binaryTestCase{
 		// None
@@ -677,9 +677,9 @@ func TestIsOp(t *testing.T) {
 		{builtin.PyTrue, builtin.NewPyString("testy"), builtin.PyFalse},
 		// int is int
 		{intItem, intItem, builtin.PyTrue},
-		{&builtin.PyInt{Value: 9999999}, intItem, builtin.PyFalse},
+		{builtin.NewPyInt(9999999), intItem, builtin.PyFalse},
 		// int is unexpected_type
-		{&builtin.PyInt{Value: 42}, builtin.NewPyString("testy"), builtin.PyFalse},
+		{builtin.NewPyInt(42), builtin.NewPyString("testy"), builtin.PyFalse},
 		// float is float
 		{floatItem, floatItem, builtin.PyTrue},
 		{&builtin.PyFloat{Value: 42.5}, &builtin.PyFloat{Value: 42.5}, builtin.PyFalse},

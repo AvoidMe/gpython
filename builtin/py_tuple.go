@@ -5,8 +5,8 @@ type PyTuple struct {
 }
 
 func (self *PyTuple) GetItem(index PyObject) (PyObject, error) {
-	itemIndex := index.(*PyInt)             // TODO: add error handling
-	return self.Value[itemIndex.Value], nil // TODO: add index checking
+	itemIndex := index.(*PyInt)                     // TODO: add error handling
+	return self.Value[itemIndex.Value.Int64()], nil // TODO: add index checking
 }
 
 func (self *PyTuple) String() string {
@@ -24,9 +24,9 @@ func (self *PyTuple) Repr() string {
 	return self.String()
 }
 
-func (self *PyTuple) Hash() (uint64, error) {
+func (self *PyTuple) Hash() (int64, error) {
 	// TODO: this is bad hash implementation
-	totalHash := uint64(0)
+	totalHash := int64(0)
 	for _, item := range self.Value {
 		hash, err := item.Hash()
 		if err != nil {

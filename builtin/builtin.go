@@ -42,11 +42,11 @@ func PyPrintImplementation(
 func PyHash(args PyObject, kwnames PyObject) PyObject {
 	// TODO: check that args and kwnames contains only one argument
 	argList, _ := args.(*PyList)
-	arg, _ := argList.GetItem(&PyInt{Value: 0})
+	arg, _ := argList.GetItem(NewPyInt(0))
 	hash, _ := PyHashImplementation(arg) // TODO: check error
-	return &PyInt{Value: int64(hash)}
+	return NewPyInt(hash)
 }
 
-func PyHashImplementation(obj PyObject) (uint64, error) {
+func PyHashImplementation(obj PyObject) (int64, error) {
 	return obj.Hash()
 }

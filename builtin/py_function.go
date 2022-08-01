@@ -16,9 +16,9 @@ func (self *PyFunction) Repr() string {
 	return self.ReprValue
 }
 
-func (self *PyFunction) Hash() (uint64, error) {
+func (self *PyFunction) Hash() (int64, error) {
 	// In Cpython functions are hashable, but functions with same body resulting different hashes!
-	return *(*uint64)(unsafe.Pointer(self)), nil
+	return *(*int64)(unsafe.Pointer(self)), nil
 }
 
 func (self *PyFunction) Equal(b PyObject) *PyBool {

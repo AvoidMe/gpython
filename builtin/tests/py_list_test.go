@@ -22,12 +22,12 @@ type listCase struct {
 
 func TestListSetItem(t *testing.T) {
 	input := []builtin.PyObject{
-		&builtin.PyInt{Value: 0},
-		&builtin.PyInt{Value: 1},
-		&builtin.PyInt{Value: 2},
-		&builtin.PyInt{Value: 3},
-		&builtin.PyInt{Value: 4},
-		&builtin.PyInt{Value: 5},
+		builtin.NewPyInt(0),
+		builtin.NewPyInt(1),
+		builtin.NewPyInt(2),
+		builtin.NewPyInt(3),
+		builtin.NewPyInt(4),
+		builtin.NewPyInt(5),
 		builtin.PyNone,
 		builtin.PyNone,
 		builtin.PyNone,
@@ -48,11 +48,11 @@ func TestListSetItem(t *testing.T) {
 		{11, builtin.NewPyString("Miss me?")},
 	}
 	expected := []builtin.PyObject{
-		&builtin.PyInt{Value: 0},
+		builtin.NewPyInt(0),
 		builtin.NewPyString("first"),
-		&builtin.PyInt{Value: 2},
-		&builtin.PyInt{Value: 3},
-		&builtin.PyInt{Value: 4},
+		builtin.NewPyInt(2),
+		builtin.NewPyInt(3),
+		builtin.NewPyInt(4),
 		builtin.NewPyString("last"),
 		builtin.PyTrue,
 		builtin.PyNone,
@@ -76,10 +76,10 @@ func _genericListTest(input []builtin.PyObject, setCases []listCase, expectedLis
 		result.Append(input[i])
 	}
 	for _, setCase := range setCases {
-		result.SetItem(&builtin.PyInt{Value: setCase.Index}, setCase.Value)
+		result.SetItem(builtin.NewPyInt(setCase.Index), setCase.Value)
 	}
 	for i := 0; i < len(expectedList); i++ {
-		answer, _ := result.GetItem(&builtin.PyInt{Value: int64(i)}) // TODO: add error checking
+		answer, _ := result.GetItem(builtin.NewPyInt(int64(i))) // TODO: add error checking
 		expected := expectedList[i]
 		if answer.Equal(expected) != builtin.PyTrue {
 			t.Errorf("After insert list has unexpected value: %v: %v, %v", i, expected, answer)
