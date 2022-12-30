@@ -2,6 +2,7 @@ package opcode
 
 const (
 	POP_TOP          = 1
+	PUSH_NULL        = 2
 	NOP              = 9
 	BINARY_ADD       = 23
 	BINARY_SUBSTRACT = 24
@@ -17,7 +18,9 @@ const (
 	BUILD_MAP           = 105
 	COMPARE_OP          = 107
 	IS_OP               = 117
-	CALL_FUNCTION       = 131
+	RESUME              = 151
 	BUILD_CONST_KEY_MAP = 156
 	LIST_EXTEND         = 162
+	PRECALL             = 166
+	CALL                = 171
 )

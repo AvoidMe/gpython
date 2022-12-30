@@ -1,4 +1,4 @@
-This is an experimental implementation of python 3.10 interpreter, written in golang.
+This is an experimental implementation of python 3.11 interpreter, written in golang.
 
 How to use:
 ```

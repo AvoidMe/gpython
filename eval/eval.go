@@ -93,10 +93,10 @@ func EvalInstructions(instructions []opcode.Instruction) builtin.PyObject {
 			} else {
 				frame.Stack.Append(builtin.PyFalse)
 			}
-		case opcode.CALL_FUNCTION:
+		case opcode.CALL:
 			args := &builtin.PyList{Value: frame.Stack.PopN(instruction.Arg)}
-			function := frame.Stack.Pop().(*builtin.PyFunction)
-			frame.Stack.Append(function.Callable(args, builtin.PyNone))
+			callable := frame.Stack.Pop().(*builtin.PyFunction)
+			frame.Stack.Append(callable.Callable(args, builtin.PyNone))
 		case opcode.BUILD_CONST_KEY_MAP:
 			dict := &builtin.PyDict{}
 			keys := frame.Stack.Pop().(*builtin.PyList)
@@ -115,6 +115,12 @@ func EvalInstructions(instructions []opcode.Instruction) builtin.PyObject {
 			frame.Stack.Append(list)
 		case opcode.RETURN_VALUE:
 			returnValue = frame.Stack.Pop()
+		case opcode.PUSH_NULL:
+			frame.Stack.Append(nil)
+		case opcode.PRECALL:
+			// TODO: Doing nothing for now
+		case opcode.RESUME:
+			// TODO: Doing nothing for now
 		default:
 			panic(fmt.Sprintf("Undefined opcode: %v", instruction))
 		}

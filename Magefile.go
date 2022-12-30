@@ -21,6 +21,10 @@ func Build() error {
 	return sh.Run("go", "build", "main.go")
 }
 
+func Run() error {
+	return sh.Run("go", "run", "main.go")
+}
+
 // Test package
 func Test() error {
 	return sh.Run("go", "test", "./...")
