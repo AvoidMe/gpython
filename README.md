@@ -30,7 +30,9 @@ python python_to_instructions.py hello_world.py output.json && go run main.go
 
 # Roadmap
 
+* 
 * Clean-up non-exception related TODO's.
-* Add exceptions and cleanup exception-related TODO's
+* Add exceptions
+* cleanup exception-related TODO's
 
 \* This is not a complete roadmap, only a bunch of goals on a week or two to give readers a better understanding about this project.

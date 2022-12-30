@@ -100,8 +100,9 @@ func EvalInstructions(instructions []opcode.Instruction) builtin.PyObject {
 		case opcode.BUILD_CONST_KEY_MAP:
 			dict := &builtin.PyDict{}
 			keys := frame.Stack.Pop().(*builtin.PyList)
-			for i := instruction.Arg - 1; i >= 0; i-- {
-				index := builtin.NewPyInt(int64(i))
+			i := int64(instruction.Arg) - 1
+			for ; i >= 0; i-- {
+				index := builtin.NewPyInt(i)
 				key, _ := keys.GetItem(index) // TODO: add error checking
 				value := frame.Stack.Pop()
 				dict.SetItem(key, value)
