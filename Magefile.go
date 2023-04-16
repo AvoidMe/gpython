@@ -33,7 +33,8 @@ func Test() error {
 
 // (Re)generate go-files from templates
 func Generate() error {
-	env := make(map[string]string)
-	env["PYTHONPATH"] = "peg_generator/"
+	env := map[string]string{
+		"PYTHONPATH": "peg_generator/",
+	}
 	return sh.RunWith(env, "python3.11", "peg_generator/pegen", "go", "grammar/python.gram", "grammar/Tokens")
 }

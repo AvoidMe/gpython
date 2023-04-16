@@ -73,18 +73,18 @@ def generate_python_code(
 def generate_go_code(
     args: argparse.Namespace,
 ) -> Tuple[Grammar, Parser, Tokenizer, ParserGenerator]:
-    from pegen.build import build_python_parser_and_generator
+    from pegen.build import build_go_parser_and_generator
 
     verbose = args.verbose
     verbose_tokenizer = verbose >= 3
     verbose_parser = verbose == 2 or verbose >= 4
     try:
-        grammar, parser, tokenizer, gen = build_python_parser_and_generator(
+        grammar, parser, tokenizer, gen = build_go_parser_and_generator(
             args.grammar_filename,
+            args.tokens_filename,
             args.output,
             verbose_tokenizer,
             verbose_parser,
-            skip_actions=args.skip_actions,
         )
         return grammar, parser, tokenizer, gen
     except Exception as err:
@@ -146,7 +146,7 @@ python_parser.add_argument(
 )
 
 go_parser = subparsers.add_parser("go", help="Generate GO code")
-go_parser.set_defaults(func=generate_python_code)
+go_parser.set_defaults(func=generate_go_code)
 go_parser.add_argument("grammar_filename", help="Grammar description")
 go_parser.add_argument("tokens_filename", help="Tokens description")
 go_parser.add_argument(
