@@ -36,5 +36,19 @@ func Generate() error {
 	env := map[string]string{
 		"PYTHONPATH": "peg_generator/",
 	}
-	return sh.RunWith(env, "python3.11", "peg_generator/pegen", "go", "grammar/python.gram", "grammar/Tokens")
+	err := sh.RunWith(
+		env,
+		"python3",
+		"peg_generator/pegen",
+		"-v",
+		"go",
+		"grammar/python.gram",
+		"grammar/Tokens",
+		"--out",
+		"parser/parse.go",
+	)
+	if err != nil {
+		return err
+	}
+	return sh.Run("go", "fmt", "parser/parse.go")
 }
