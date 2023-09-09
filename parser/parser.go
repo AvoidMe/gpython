@@ -131,10 +131,6 @@ func asdl_stmt_seqsimple_stmts_rule(p *Parser) **asdl_stmt_seq {
 	return nil
 }
 
-func asdl_stmt_seq_gather_4_rule(p *Parser) **asdl_stmt_seq {
-	return nil
-}
-
 func asdl_seq_SET_UNTYPED(seq *asdl_seq, i int, child any) {
 }
 

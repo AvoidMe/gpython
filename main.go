@@ -1,7 +1,7 @@
 package main
 
 import (
-	"io/ioutil"
+	"io"
 	"log"
 
 	"github.com/AvoidMe/gpython/eval"
@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	log.SetOutput(ioutil.Discard)
+	log.SetOutput(io.Discard)
 	instructions := pythontogo.LoadJson()
 	eval.EvalInstructions(instructions)
 }
