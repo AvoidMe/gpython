@@ -57,7 +57,7 @@ func _PyAST_Expr(e expr_ty, start_lineno, start_col_offset, end_lineno, end_col_
 	return nil
 }
 
-func _PyAST_Assign(a *asdl_expr_seq, b expr_ty, type_comment builtin.PyObject, start_lineno, start_col_offset, end_lineno, end_col_offset int) stmt_ty {
+func _PyAST_Assign(a asdl_expr_seq, b expr_ty, type_comment builtin.PyObject, start_lineno, start_col_offset, end_lineno, end_col_offset int) stmt_ty {
 	return nil
 }
 

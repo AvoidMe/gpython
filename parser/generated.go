@@ -89,7 +89,7 @@ func file_rule(p *Parser) mod_ty {
 		}
 		if condition() {
 			_res = _PyPegen_make_module(p, a)
-			if _res == nil && PyErr_Occurred() {
+			if _res == nil && p.PyErr_Occurred() {
 				p.error_indicator = 1
 				p.level--
 				return nil
@@ -105,20 +105,20 @@ done:
 }
 
 // statements: statement+
-func statements_rule(p *Parser) *asdl_stmt_seq {
+func statements_rule(p *Parser) asdl_stmt_seq {
 	p.level++
 	if p.error_indicator > 0 {
 		p.level--
 		return nil
 	}
-	var _res *asdl_stmt_seq
+	var _res asdl_stmt_seq
 	_mark := p.mark
 	{ // statement+
 		if p.error_indicator > 0 {
 			p.level--
 			return nil
 		}
-		var a *asdl_seq
+		var a asdl_seq
 		condition := func() bool {
 			a = _loop1_1_rule(p)
 			if a == nil {
@@ -127,8 +127,8 @@ func statements_rule(p *Parser) *asdl_stmt_seq {
 			return true
 		}
 		if condition() {
-			_res = _PyPegen_seq_flatten(p, a)
-			if _res == nil && PyErr_Occurred() {
+			_res = asdl_stmt_seq(_PyPegen_seq_flatten(p, a))
+			if _res == nil && p.PyErr_Occurred() {
 				p.error_indicator = 1
 				p.level--
 				return nil
@@ -144,22 +144,22 @@ done:
 }
 
 // statement: simple_stmts
-func statement_rule(p *Parser) *asdl_stmt_seq {
+func statement_rule(p *Parser) asdl_stmt_seq {
 	p.level++
 	if p.error_indicator > 0 {
 		p.level--
 		return nil
 	}
-	var _res *asdl_stmt_seq
+	var _res asdl_stmt_seq
 	_mark := p.mark
 	{ // simple_stmts
 		if p.error_indicator > 0 {
 			p.level--
 			return nil
 		}
-		var a *asdl_stmt_seq
+		var a asdl_stmt_seq
 		condition := func() bool {
-			a = (*asdl_stmt_seq)(simple_stmts_rule(p))
+			a = (asdl_stmt_seq)(simple_stmts_rule(p))
 			if a == nil {
 				return false
 			} // simple_stmts
@@ -167,7 +167,7 @@ func statement_rule(p *Parser) *asdl_stmt_seq {
 		}
 		if condition() {
 			_res = a
-			if _res == nil && PyErr_Occurred() {
+			if _res == nil && p.PyErr_Occurred() {
 				p.error_indicator = 1
 				p.level--
 				return nil
@@ -183,13 +183,13 @@ done:
 }
 
 // simple_stmts: ';'.simple_stmt+ ';'? NEWLINE
-func simple_stmts_rule(p *Parser) *asdl_stmt_seq {
+func simple_stmts_rule(p *Parser) asdl_stmt_seq {
 	p.level++
 	if p.error_indicator > 0 {
 		p.level--
 		return nil
 	}
-	var _res *asdl_stmt_seq
+	var _res asdl_stmt_seq
 	_mark := p.mark
 	{ // ';'.simple_stmt+ ';'? NEWLINE
 		if p.error_indicator > 0 {
@@ -198,10 +198,10 @@ func simple_stmts_rule(p *Parser) *asdl_stmt_seq {
 		}
 		var _opt_var any
 		UNUSED(_opt_var) // Silence compiler warnings
-		var a *asdl_stmt_seq
+		var a asdl_stmt_seq
 		var newline_var *Token
 		condition := func() bool {
-			a = (*asdl_stmt_seq)(_gather_2_rule(p))
+			a = (asdl_stmt_seq)(_gather_2_rule(p))
 			if a == nil {
 				return false
 			} // ';'.simple_stmt+
@@ -218,7 +218,7 @@ func simple_stmts_rule(p *Parser) *asdl_stmt_seq {
 		}
 		if condition() {
 			_res = a
-			if _res == nil && PyErr_Occurred() {
+			if _res == nil && p.PyErr_Occurred() {
 				p.error_indicator = 1
 				p.level--
 				return nil
@@ -294,7 +294,7 @@ func simple_stmt_rule(p *Parser) stmt_ty {
 			_end_lineno := _token.end_lineno
 			_end_col_offset := _token.end_col_offset
 			_res = _PyAST_Expr(e, _start_lineno, _start_col_offset, _end_lineno, _end_col_offset)
-			if _res == nil && PyErr_Occurred() {
+			if _res == nil && p.PyErr_Occurred() {
 				p.error_indicator = 1
 				p.level--
 				return nil
@@ -325,7 +325,7 @@ func simple_stmt_rule(p *Parser) stmt_ty {
 			_end_lineno := _token.end_lineno
 			_end_col_offset := _token.end_col_offset
 			_res = _PyAST_Pass(_start_lineno, _start_col_offset, _end_lineno, _end_col_offset)
-			if _res == nil && PyErr_Occurred() {
+			if _res == nil && p.PyErr_Occurred() {
 				p.error_indicator = 1
 				p.level--
 				return nil
@@ -362,11 +362,11 @@ func assignment_rule(p *Parser) stmt_ty {
 			p.level--
 			return nil
 		}
-		var a *asdl_expr_seq
+		var a asdl_expr_seq
 		var b expr_ty
 		var tc any
 		condition := func() bool {
-			a = (*asdl_expr_seq)(_loop1_4_rule(p))
+			a = (asdl_expr_seq)(_loop1_4_rule(p))
 			if a == nil {
 				return false
 			} // ((star_targets '='))+
@@ -394,7 +394,7 @@ func assignment_rule(p *Parser) stmt_ty {
 			_end_lineno := _token.end_lineno
 			_end_col_offset := _token.end_col_offset
 			_res = _PyAST_Assign(a, b, NEW_TYPE_COMMENT(p, tc), _start_lineno, _start_col_offset, _end_lineno, _end_col_offset)
-			if _res == nil && PyErr_Occurred() {
+			if _res == nil && p.PyErr_Occurred() {
 				p.error_indicator = 1
 				p.level--
 				return nil
@@ -1113,7 +1113,7 @@ func atom_rule(p *Parser) expr_ty {
 			_end_lineno := _token.end_lineno
 			_end_col_offset := _token.end_col_offset
 			_res = _PyAST_Constant(builtin.PyTrue, nil, _start_lineno, _start_col_offset, _end_lineno, _end_col_offset)
-			if _res == nil && PyErr_Occurred() {
+			if _res == nil && p.PyErr_Occurred() {
 				p.error_indicator = 1
 				p.level--
 				return nil
@@ -1144,7 +1144,7 @@ func atom_rule(p *Parser) expr_ty {
 			_end_lineno := _token.end_lineno
 			_end_col_offset := _token.end_col_offset
 			_res = _PyAST_Constant(builtin.PyFalse, nil, _start_lineno, _start_col_offset, _end_lineno, _end_col_offset)
-			if _res == nil && PyErr_Occurred() {
+			if _res == nil && p.PyErr_Occurred() {
 				p.error_indicator = 1
 				p.level--
 				return nil
@@ -1175,7 +1175,7 @@ func atom_rule(p *Parser) expr_ty {
 			_end_lineno := _token.end_lineno
 			_end_col_offset := _token.end_col_offset
 			_res = _PyAST_Constant(builtin.PyNone, nil, _start_lineno, _start_col_offset, _end_lineno, _end_col_offset)
-			if _res == nil && PyErr_Occurred() {
+			if _res == nil && p.PyErr_Occurred() {
 				p.error_indicator = 1
 				p.level--
 				return nil
@@ -1250,7 +1250,7 @@ func strings_rule(p *Parser) expr_ty {
 			p.level--
 			return nil
 		}
-		var a *asdl_seq
+		var a asdl_seq
 		condition := func() bool {
 			a = _loop1_5_rule(p)
 			if a == nil {
@@ -1260,7 +1260,7 @@ func strings_rule(p *Parser) expr_ty {
 		}
 		if condition() {
 			_res = _PyPegen_concatenate_strings(p, a)
-			if _res == nil && PyErr_Occurred() {
+			if _res == nil && p.PyErr_Occurred() {
 				p.error_indicator = 1
 				p.level--
 				return nil
@@ -1304,7 +1304,7 @@ func star_targets_rule(p *Parser) expr_ty {
 		}
 		if condition() {
 			_res = a
-			if _res == nil && PyErr_Occurred() {
+			if _res == nil && p.PyErr_Occurred() {
 				p.error_indicator = 1
 				p.level--
 				return nil
@@ -1421,7 +1421,7 @@ func star_atom_rule(p *Parser) expr_ty {
 		}
 		if condition() {
 			_res = _PyPegen_set_expr_context(p, a, Store)
-			if _res == nil && PyErr_Occurred() {
+			if _res == nil && p.PyErr_Occurred() {
 				p.error_indicator = 1
 				p.level--
 				return nil
@@ -1437,7 +1437,7 @@ done:
 }
 
 // _loop1_1: statement
-func _loop1_1_rule(p *Parser) *asdl_seq {
+func _loop1_1_rule(p *Parser) asdl_seq {
 	p.level++
 	if p.error_indicator > 0 {
 		p.level--
@@ -1453,7 +1453,7 @@ func _loop1_1_rule(p *Parser) *asdl_seq {
 			p.level--
 			return nil
 		}
-		var statement_var *asdl_stmt_seq
+		var statement_var asdl_stmt_seq
 		condition := func() bool {
 			statement_var = statement_rule(p)
 			if statement_var == nil {
@@ -1474,7 +1474,7 @@ func _loop1_1_rule(p *Parser) *asdl_seq {
 	}
 	_seq := _Py_asdl_generic_seq_new(_n)
 	for i := 0; i < _n; i++ {
-		asdl_seq_SET_UNTYPED(_seq, i, _children[i])
+		_seq[0] = append(_seq[0], _children[i])
 	}
 	_PyPegen_insert_memo(p, _start_mark, _loop1_1_type, _seq)
 	p.level--
@@ -1482,7 +1482,7 @@ func _loop1_1_rule(p *Parser) *asdl_seq {
 }
 
 // _loop0_3: ';' simple_stmt
-func _loop0_3_rule(p *Parser) *asdl_seq {
+func _loop0_3_rule(p *Parser) asdl_seq {
 	p.level++
 	if p.error_indicator > 0 {
 		p.level--
@@ -1513,7 +1513,7 @@ func _loop0_3_rule(p *Parser) *asdl_seq {
 		}
 		for condition() {
 			_res = elem
-			if _res == nil && PyErr_Occurred() {
+			if _res == nil && p.PyErr_Occurred() {
 				p.error_indicator = 1
 				p.level--
 				return nil
@@ -1525,7 +1525,7 @@ func _loop0_3_rule(p *Parser) *asdl_seq {
 	}
 	_seq := _Py_asdl_generic_seq_new(_n)
 	for i := 0; i < _n; i++ {
-		asdl_seq_SET_UNTYPED(_seq, i, _children[i])
+		_seq[0] = append(_seq[0], _children[i])
 	}
 	_PyPegen_insert_memo(p, _start_mark, _loop0_3_type, _seq)
 	p.level--
@@ -1533,13 +1533,13 @@ func _loop0_3_rule(p *Parser) *asdl_seq {
 }
 
 // _gather_2: simple_stmt _loop0_3
-func _gather_2_rule(p *Parser) *asdl_seq {
+func _gather_2_rule(p *Parser) asdl_seq {
 	p.level++
 	if p.error_indicator > 0 {
 		p.level--
 		return nil
 	}
-	var _res *asdl_seq
+	var _res asdl_seq
 	_mark := p.mark
 	{ // simple_stmt _loop0_3
 		if p.error_indicator > 0 {
@@ -1547,7 +1547,7 @@ func _gather_2_rule(p *Parser) *asdl_seq {
 			return nil
 		}
 		var elem stmt_ty
-		var seq *asdl_seq
+		var seq asdl_seq
 		condition := func() bool {
 			elem = simple_stmt_rule(p)
 			if elem == nil {
@@ -1572,7 +1572,7 @@ done:
 }
 
 // _loop1_4: (star_targets '=')
-func _loop1_4_rule(p *Parser) *asdl_seq {
+func _loop1_4_rule(p *Parser) asdl_seq {
 	p.level++
 	if p.error_indicator > 0 {
 		p.level--
@@ -1609,7 +1609,7 @@ func _loop1_4_rule(p *Parser) *asdl_seq {
 	}
 	_seq := _Py_asdl_generic_seq_new(_n)
 	for i := 0; i < _n; i++ {
-		asdl_seq_SET_UNTYPED(_seq, i, _children[i])
+		_seq[0] = append(_seq[0], _children[i])
 	}
 	_PyPegen_insert_memo(p, _start_mark, _loop1_4_type, _seq)
 	p.level--
@@ -1617,7 +1617,7 @@ func _loop1_4_rule(p *Parser) *asdl_seq {
 }
 
 // _loop1_5: STRING
-func _loop1_5_rule(p *Parser) *asdl_seq {
+func _loop1_5_rule(p *Parser) asdl_seq {
 	p.level++
 	if p.error_indicator > 0 {
 		p.level--
@@ -1654,7 +1654,7 @@ func _loop1_5_rule(p *Parser) *asdl_seq {
 	}
 	_seq := _Py_asdl_generic_seq_new(_n)
 	for i := 0; i < _n; i++ {
-		asdl_seq_SET_UNTYPED(_seq, i, _children[i])
+		_seq[0] = append(_seq[0], _children[i])
 	}
 	_PyPegen_insert_memo(p, _start_mark, _loop1_5_type, _seq)
 	p.level--
@@ -1690,7 +1690,7 @@ func _tmp_6_rule(p *Parser) any {
 		}
 		if condition() {
 			_res = z
-			if _res == nil && PyErr_Occurred() {
+			if _res == nil && p.PyErr_Occurred() {
 				p.error_indicator = 1
 				p.level--
 				return nil

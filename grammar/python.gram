@@ -27,12 +27,12 @@ file[mod_ty]: a=[statements] ENDMARKER { _PyPegen_make_module(p, a) }
 # GENERAL STATEMENTS
 # ==================
 
-statements[*asdl_stmt_seq]: a=statement+ { _PyPegen_seq_flatten(p, a) }
+statements[asdl_stmt_seq]: a=statement+ { asdl_stmt_seq(_PyPegen_seq_flatten(p, a)) }
 
-statement[*asdl_stmt_seq]: a[*asdl_stmt_seq]=simple_stmts { a }
+statement[asdl_stmt_seq]: a[asdl_stmt_seq]=simple_stmts { a }
 
-simple_stmts[*asdl_stmt_seq]:
-    | a[*asdl_stmt_seq]=';'.simple_stmt+ [';'] NEWLINE { a }
+simple_stmts[asdl_stmt_seq]:
+    | a[asdl_stmt_seq]=';'.simple_stmt+ [';'] NEWLINE { a }
 
 # NOTE: assignment MUST precede expression, else parsing a simple assignment
 # will throw a SyntaxError.
@@ -45,7 +45,7 @@ simple_stmt[stmt_ty] (memo):
 # =================
 
 assignment[stmt_ty]:
-    | a[*asdl_expr_seq]=(z=star_targets '=' { z })+ b=(star_expressions) !'=' tc=[TYPE_COMMENT] {
+    | a[asdl_expr_seq]=(z=star_targets '=' { z })+ b=(star_expressions) !'=' tc=[TYPE_COMMENT] {
          _PyAST_Assign(a, b, NEW_TYPE_COMMENT(p, tc), EXTRA) }
 
 annotated_rhs[expr_ty]: star_expressions

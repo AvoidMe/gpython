@@ -5,7 +5,7 @@ type Parser struct {
 	SoftKeywords []string
 	StartRule    int
 
-	tokens             []Token
+	tokens             []*Token
 	fill               int
 	mark               int
 	level              int
@@ -13,7 +13,6 @@ type Parser struct {
 	call_invalid_rules bool
 }
 
-// *_ty
 type _mod_ty struct{}
 type mod_ty *_mod_ty
 
@@ -26,32 +25,47 @@ type stmt_ty *_stmt_ty
 type _arg_ty struct{}
 type arg_ty *_arg_ty
 
-// asdl_*
-type asdl_stmt_seq struct{}
-type asdl_seq struct{}
-type asdl_expr_seq struct{}
-
 type _STMT interface {
-	*asdl_seq | stmt_ty | expr_ty
+	asdl_seq | stmt_ty | expr_ty
 }
 
 type Token struct {
+	_type          int
 	lineno         int
 	col_offset     int
 	end_lineno     int
 	end_col_offset int
 }
 
-func PyErr_Occurred() bool {
+func (this *Parser) PyErr_Occurred() bool {
 	return false
 }
 
-func _PyPegen_expect_token(p *Parser, marker int) *Token {
-	return nil
+func _PyPegen_expect_token(p *Parser, _type int) *Token {
+	if p.mark == p.fill {
+		if _PyPegen_fill_token(p) < 0 {
+			p.error_indicator = 1
+			return nil
+		}
+	}
+	t := p.tokens[p.mark]
+	if t._type != _type {
+		return nil
+	}
+	p.mark += 1
+	return t
 }
 
-func _PyPegen_seq_flatten(p *Parser, a *asdl_seq) *asdl_stmt_seq {
-	return nil
+func _PyPegen_seq_flatten[T ASDL_INTERFACE](p *Parser, seqs T) T {
+	flattened_seq := make(T, 1)
+	l := len(seqs)
+	for i := 0; i < l; i++ {
+		inner_seq := seqs[i]
+		for j := 0; j < len(inner_seq); j++ {
+			flattened_seq[0] = append(flattened_seq[0], inner_seq[j])
+		}
+	}
+	return flattened_seq
 }
 
 func _PyPegen_fill_token(p *Parser) int {
@@ -81,7 +95,7 @@ func _PyPegen_set_expr_context(p *Parser, a expr_ty, context expr_context) expr_
 	return nil
 }
 
-func _PyPegen_seq_insert_in_front(p *Parser, elem stmt_ty, seq *asdl_seq) *asdl_seq {
+func _PyPegen_seq_insert_in_front(p *Parser, elem stmt_ty, seq asdl_seq) asdl_seq {
 	return nil
 }
 
@@ -101,15 +115,8 @@ func _PyPegen_number_token(p *Parser) expr_ty {
 	return nil
 }
 
-func _Py_asdl_generic_seq_new(n int) *asdl_seq {
+func _PyPegen_concatenate_strings(p *Parser, a asdl_seq) expr_ty {
 	return nil
-}
-
-func _PyPegen_concatenate_strings(p *Parser, a *asdl_seq) expr_ty {
-	return nil
-}
-
-func asdl_seq_SET_UNTYPED(seq *asdl_seq, i int, child any) {
 }
 
 // Probably could be removed at all

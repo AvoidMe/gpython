@@ -166,7 +166,7 @@ class GoCallMakerVisitor(GrammarVisitor):
         type = None
         rule = self.gen.all_rules.get(name.lower())
         if rule is not None:
-            type = "*asdl_seq" if rule.is_loop() or rule.is_gather() else rule.type
+            type = "asdl_seq" if rule.is_loop() or rule.is_gather() else rule.type
 
         return FunctionCall(
             assigned_variable=f"{name}_var",
@@ -299,7 +299,7 @@ class GoCallMakerVisitor(GrammarVisitor):
             assigned_variable=f"{name}_var",
             function=f"{name}_rule",
             arguments=["p"],
-            return_type="*asdl_seq",
+            return_type="asdl_seq",
             comment=f"{node}",
         )
         return self.cache[node]
@@ -312,7 +312,7 @@ class GoCallMakerVisitor(GrammarVisitor):
             assigned_variable=f"{name}_var",
             function=f"{name}_rule",
             arguments=["p"],
-            return_type="*asdl_seq",
+            return_type="asdl_seq",
             comment=f"{node}",
         )
         return self.cache[node]
@@ -325,7 +325,7 @@ class GoCallMakerVisitor(GrammarVisitor):
             assigned_variable=f"{name}_var",
             function=f"{name}_rule",
             arguments=["p"],
-            return_type="*asdl_seq",
+            return_type="asdl_seq",
             comment=f"{node}",
         )
         return self.cache[node]
@@ -608,7 +608,7 @@ class GoParserGenerator(ParserGenerator, GrammarVisitor):
                     self.add_return("nil")
                 self.print("}")
             self.print("_seq := _Py_asdl_generic_seq_new(_n)")
-            self.print("for i := 0; i < _n; i++ { asdl_seq_SET_UNTYPED(_seq, i, _children[i]) }")
+            self.print("for i := 0; i < _n; i++ { _seq[0] = append(_seq[0], _children[i]) }")
             if node.name:
                 self.print(f"_PyPegen_insert_memo(p, _start_mark, {node.name}_type, _seq)")
             self.add_return("_seq")
@@ -618,7 +618,7 @@ class GoParserGenerator(ParserGenerator, GrammarVisitor):
         is_gather = node.is_gather()
         rhs = node.flatten()
         if is_loop or is_gather:
-            result_type = "*asdl_seq"
+            result_type = "asdl_seq"
         elif node.type:
             result_type = node.type
         else:
@@ -677,7 +677,7 @@ class GoParserGenerator(ParserGenerator, GrammarVisitor):
         )
         self.print(f"_res = {node.action}")
 
-        self.print("if _res == nil && PyErr_Occurred() {")
+        self.print("if _res == nil && p.PyErr_Occurred() {")
         with self.indent():
             self.print("p.error_indicator = 1")
             if cleanup_code:
