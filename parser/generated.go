@@ -1472,7 +1472,7 @@ func _loop1_1_rule(p *Parser) *asdl_seq {
 		p.level--
 		return nil
 	}
-	_seq := _Py_asdl_generic_seq_new(_n, p.arena)
+	_seq := _Py_asdl_generic_seq_new(_n)
 	for i := 0; i < _n; i++ {
 		asdl_seq_SET_UNTYPED(_seq, i, _children[i])
 	}
@@ -1523,7 +1523,7 @@ func _loop0_3_rule(p *Parser) *asdl_seq {
 		}
 		p.mark = _mark
 	}
-	_seq := _Py_asdl_generic_seq_new(_n, p.arena)
+	_seq := _Py_asdl_generic_seq_new(_n)
 	for i := 0; i < _n; i++ {
 		asdl_seq_SET_UNTYPED(_seq, i, _children[i])
 	}
@@ -1607,7 +1607,7 @@ func _loop1_4_rule(p *Parser) *asdl_seq {
 		p.level--
 		return nil
 	}
-	_seq := _Py_asdl_generic_seq_new(_n, p.arena)
+	_seq := _Py_asdl_generic_seq_new(_n)
 	for i := 0; i < _n; i++ {
 		asdl_seq_SET_UNTYPED(_seq, i, _children[i])
 	}
@@ -1652,7 +1652,7 @@ func _loop1_5_rule(p *Parser) *asdl_seq {
 		p.level--
 		return nil
 	}
-	_seq := _Py_asdl_generic_seq_new(_n, p.arena)
+	_seq := _Py_asdl_generic_seq_new(_n)
 	for i := 0; i < _n; i++ {
 		asdl_seq_SET_UNTYPED(_seq, i, _children[i])
 	}

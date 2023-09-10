@@ -10,7 +10,6 @@ type Parser struct {
 	mark               int
 	level              int
 	error_indicator    int
-	arena              any
 	call_invalid_rules bool
 }
 
@@ -102,7 +101,7 @@ func _PyPegen_number_token(p *Parser) expr_ty {
 	return nil
 }
 
-func _Py_asdl_generic_seq_new(n int, arena any) *asdl_seq {
+func _Py_asdl_generic_seq_new(n int) *asdl_seq {
 	return nil
 }
 

@@ -607,7 +607,7 @@ class GoParserGenerator(ParserGenerator, GrammarVisitor):
                 with self.indent():
                     self.add_return("nil")
                 self.print("}")
-            self.print("_seq := _Py_asdl_generic_seq_new(_n, p.arena)")
+            self.print("_seq := _Py_asdl_generic_seq_new(_n)")
             self.print("for i := 0; i < _n; i++ { asdl_seq_SET_UNTYPED(_seq, i, _children[i]) }")
             if node.name:
                 self.print(f"_PyPegen_insert_memo(p, _start_mark, {node.name}_type, _seq)")
