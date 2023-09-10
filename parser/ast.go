@@ -1,12 +1,20 @@
 package parser
 
+import (
+	"github.com/AvoidMe/gpython/builtin"
+)
+
 type AST struct{}
 
-const (
-	Load  = 1
-	Store = 2
-	Del   = 3
+type expr_context int
 
+const (
+	Load  expr_context = 1
+	Store expr_context = 2
+	Del   expr_context = 3
+)
+
+const (
 	And = 1
 	Or  = 2
 
@@ -41,14 +49,22 @@ const (
 	NotIn = 10
 )
 
-func _PyAST_Interactive(a *asdl_stmt_seq, arena any) mod_ty {
+func _PyAST_Pass(start_lineno, start_col_offset, end_lineno, end_col_offset int) stmt_ty {
 	return nil
 }
 
-func _PyAST_Expression(a expr_ty, arena any) mod_ty {
+func _PyAST_Expr(e expr_ty, start_lineno, start_col_offset, end_lineno, end_col_offset int) stmt_ty {
 	return nil
 }
 
-func _PyAST_FunctionType(a any, b expr_ty, arena any) mod_ty {
+func _PyAST_Assign(a *asdl_expr_seq, b expr_ty, type_comment builtin.PyObject, start_lineno, start_col_offset, end_lineno, end_col_offset int) stmt_ty {
+	return nil
+}
+
+func _PyAST_Constant(constant builtin.PyObject, kind *string, start_lineno, start_col_offset, end_lineno, end_col_offset int) expr_ty {
+	return nil
+}
+
+func NEW_TYPE_COMMENT(p *Parser, token any) builtin.PyObject {
 	return nil
 }

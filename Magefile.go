@@ -45,10 +45,10 @@ func Generate() error {
 		"grammar/python.gram",
 		"grammar/Tokens",
 		"--out",
-		"parser/parse.go",
+		"parser/generated.go",
 	)
 	if err != nil {
 		return err
 	}
-	return sh.Run("go", "fmt", "parser/parse.go")
+	return sh.Run("go", "fmt", "parser/generated.go")
 }

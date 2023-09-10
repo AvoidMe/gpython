@@ -77,6 +77,8 @@ class FunctionCall:
         parts.append(self.function)
         if self.arguments:
             parts.append(f"({', '.join(map(str, self.arguments))})")
+        if self.assigned_variable_type:
+            parts.append(")")
         if self.force_true:
             parts.append("\nif p.error_indicator != 0 {\n")
             parts.append("  return false\n")
@@ -84,14 +86,14 @@ class FunctionCall:
         else:
             if self.assigned_variable:
                 parts.append(f"\nif {self.assigned_variable} == nil {{ return false }}")
-            # else:
-            #    parts.append(f"\nif {self.assigned_variable} == nil {{ return false }}")
         if self.assigned_variable:
             if self.assigned_variable_type:
                 parts = [
                     self.assigned_variable,
                     " = ",
+                    "(",
                     self.assigned_variable_type,
+                    ")(",
                     *parts,
                 ]
             else:
@@ -433,11 +435,6 @@ class GoParserGenerator(ParserGenerator, GrammarVisitor):
 
     def add_level(self) -> None:
         self.print("p.level++")
-        self.print("if p.level == MAXSTACK {")
-        with self.indent():
-            self.print("p.error_indicator = 1")
-            self.print("PyErr_NoMemory()")
-        self.print("}")
 
     def remove_level(self) -> None:
         self.print("p.level--")
@@ -497,9 +494,7 @@ class GoParserGenerator(ParserGenerator, GrammarVisitor):
             self.add_return("nil")
         self.print("}")
         self.print("_start_lineno := p.tokens[_mark].lineno")
-        self.print("UNUSED(_start_lineno) // Only used by EXTRA macro")
         self.print("_start_col_offset := p.tokens[_mark].col_offset")
-        self.print("UNUSED(_start_col_offset) // Only used by EXTRA macro")
 
     def _set_up_token_end_metadata_extraction(self) -> None:
         self.print("_token := _PyPegen_get_last_nonnwhitespace_token(p)")
@@ -508,9 +503,7 @@ class GoParserGenerator(ParserGenerator, GrammarVisitor):
             self.add_return("nil")
         self.print("}")
         self.print("_end_lineno := _token.end_lineno")
-        self.print("UNUSED(_end_lineno) // Only used by EXTRA macro")
         self.print("_end_col_offset := _token.end_col_offset")
-        self.print("UNUSED(_end_col_offset) // Only used by EXTRA macro")
 
     def _check_for_errors(self) -> None:
         self.print("if p.error_indicator > 0 {")
@@ -679,6 +672,9 @@ class GoParserGenerator(ParserGenerator, GrammarVisitor):
         self.print(f"{keyword} condition() {{")
 
     def emit_action(self, node: Alt, cleanup_code: Optional[str] = None) -> None:
+        node.action = node.action.replace(
+            "EXTRA", "_start_lineno, _start_col_offset, _end_lineno, _end_col_offset"
+        )
         self.print(f"_res = {node.action}")
 
         self.print("if _res == nil && PyErr_Occurred() {")
