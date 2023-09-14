@@ -7,7 +7,8 @@ const (
 	Py_func_type_input = 345
 	Py_fstring_input   = 800
 
-	MAXSTACK = 100_000
+	MAXSTACK   = 100_000
+	ALTTABSIZE = 1
 
 	ENDMARKER        = 0
 	NAME             = 1
@@ -72,4 +73,29 @@ const (
 	ERRORTOKEN       = 60
 	N_TOKENS         = 64
 	NT_OFFSET        = 256
+)
+
+const (
+	E_OK            = 10 /* No error */
+	E_EOF           = 11 /* End Of File */
+	E_INTR          = 12 /* Interrupted */
+	E_TOKEN         = 13 /* Bad token */
+	E_SYNTAX        = 14 /* Syntax error */
+	E_NOMEM         = 15 /* Ran out of memory */
+	E_DONE          = 16 /* Parsing complete */
+	E_ERROR         = 17 /* Execution error */
+	E_TABSPACE      = 18 /* Inconsistent mixing of tabs and spaces */
+	E_OVERFLOW      = 19 /* Node had too many children */
+	E_TOODEEP       = 20 /* Too many indentation levels */
+	E_DEDENT        = 21 /* No matching outer block for dedent */
+	E_DECODE        = 22 /* Error in decoding into Unicode */
+	E_EOFS          = 23 /* EOF in triple-quoted string */
+	E_EOLS          = 24 /* EOL in single-quoted string */
+	E_LINECONT      = 25 /* Unexpected characters after a line continuation */
+	E_BADSINGLE     = 27 /* Ill-formed single statement input */
+	E_INTERACT_STOP = 28 /* Interactive mode stopped tokenization */
+)
+
+const (
+	PyPARSE_DONT_IMPLY_DEDENT = 0x0002
 )

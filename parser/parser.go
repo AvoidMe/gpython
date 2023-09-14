@@ -5,12 +5,17 @@ type Parser struct {
 	SoftKeywords []string
 	StartRule    int
 
-	tokens             []*Token
-	fill               int
-	mark               int
-	level              int
-	error_indicator    int
-	call_invalid_rules bool
+	tokens               []*Token
+	tok                  *TokenState
+	type_ignore_comments []*Token
+	fill                 int
+	mark                 int
+	level                int
+	error_indicator      int
+	start_rule           int
+	flags                int
+	call_invalid_rules   bool
+	parsing_started      bool
 }
 
 type _mod_ty struct{}
@@ -35,6 +40,41 @@ type Token struct {
 	col_offset     int
 	end_lineno     int
 	end_col_offset int
+	value          string
+}
+
+const (
+	MAXLEVEL  = 200
+	MAXINDENT = 100
+)
+
+type TokenState struct {
+	lineno                int
+	pendin                int
+	indent                int
+	done                  int
+	col_offset            int
+	starting_col_offset   int
+	atbol                 int
+	tabsize               int
+	level                 int
+	async_def             bool
+	async_def_nl          int
+	async_def_indent      int
+	decoding_erred        bool
+	type_comments         bool
+	cur                   byte
+	start                 byte
+	end                   byte
+	interactive_src_start byte /* The start of the source parsed so far in interactive mode */
+	interactive_src_end   byte /* The end of the source parsed so far in interactive mode */
+	prompt, nextprompt    byte /* For interactive prompting */
+
+	parenstack       [MAXLEVEL]byte
+	parenlinenostack [MAXLEVEL]int
+	parencolstack    [MAXLEVEL]int
+	indstack         [MAXINDENT]int /* Stack of indents */
+	altindstack      [MAXINDENT]int /* Stack of alternate indents */
 }
 
 func (this *Parser) PyErr_Occurred() bool {
@@ -69,7 +109,33 @@ func _PyPegen_seq_flatten[T ASDL_INTERFACE](p *Parser, seqs T) T {
 }
 
 func _PyPegen_fill_token(p *Parser) int {
-	return 0
+	new_token := &Token{}
+	_type := _PyTokenizer_Get(p.tok, new_token)
+
+	// Record and skip '# type: ignore' comments
+	for _type == TYPE_IGNORE {
+		tag := new_token.value
+		// Ownership of tag passes to the growable array
+		p.type_ignore_comments = append(p.type_ignore_comments, &Token{lineno: p.tok.lineno, value: tag})
+		_type = _PyTokenizer_Get(p.tok, new_token)
+	}
+
+	// If we have reached the end and we are in single input mode we need to insert a newline and reset the parsing
+	if p.start_rule == Py_single_input && _type == ENDMARKER && p.parsing_started {
+		_type = NEWLINE /* Add an extra newline */
+		p.parsing_started = false
+
+		if p.tok.indent > 0 && (p.flags&PyPARSE_DONT_IMPLY_DEDENT == 0) {
+			p.tok.pendin = -p.tok.indent
+			p.tok.indent = 0
+		}
+	} else {
+		p.parsing_started = true
+	}
+
+	t := &Token{}
+	p.tokens = append(p.tokens, t)
+	return initialize_token(p, t, &new_token, _type)
 }
 
 func _PyPegen_get_last_nonnwhitespace_token(p *Parser) *Token {
