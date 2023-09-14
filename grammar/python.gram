@@ -1,0 +1,124 @@
+# PEG grammar for Python
+
+@trailer '''
+func _PyPegen_parse(p *Parser) any {
+    // Initialize keywords
+    p.Keywords = reserved_keywords
+    p.SoftKeywords = soft_keywords
+
+    // Run parser
+    var result *AST
+    switch p.StartRule {
+    case Py_file_input:
+        return file_rule(p)
+    }
+
+    return result
+}
+'''
+
+# ========================= START OF THE GRAMMAR =========================
+
+# STARTING RULES
+# ==============
+
+file[mod_ty]: a=[statements] ENDMARKER { _PyPegen_make_module(p, a) }
+
+# GENERAL STATEMENTS
+# ==================
+
+statements[asdl_stmt_seq]: a=statement+ { asdl_stmt_seq(_PyPegen_seq_flatten(p, a)) }
+
+statement[asdl_stmt_seq]: a[asdl_stmt_seq]=simple_stmts { a }
+
+simple_stmts[asdl_stmt_seq]:
+    | a[asdl_stmt_seq]=';'.simple_stmt+ [';'] NEWLINE { a }
+
+# NOTE: assignment MUST precede expression, else parsing a simple assignment
+# will throw a SyntaxError.
+simple_stmt[stmt_ty] (memo):
+    | assignment
+    | e=star_expressions { _PyAST_Expr(e, EXTRA) }
+    | 'pass' { _PyAST_Pass(EXTRA) }
+
+# SIMPLE STATEMENTS
+# =================
+
+assignment[stmt_ty]:
+    | a[asdl_expr_seq]=(z=star_targets '=' { z })+ b=(star_expressions) !'=' tc=[TYPE_COMMENT] {
+         _PyAST_Assign(a, b, NEW_TYPE_COMMENT(p, tc), EXTRA) }
+
+annotated_rhs[expr_ty]: star_expressions
+
+expression[expr_ty] (memo):
+    | disjunction
+
+star_expressions[expr_ty]:
+    | star_expression
+
+star_expression[expr_ty] (memo):
+    | expression
+
+disjunction[expr_ty] (memo):
+    | conjunction
+
+conjunction[expr_ty] (memo):
+    | inversion
+
+inversion[expr_ty] (memo):
+    | comparison
+
+comparison[expr_ty]:
+    | bitwise_or
+
+bitwise_or[expr_ty]:
+    | bitwise_xor
+
+bitwise_xor[expr_ty]:
+    | bitwise_and
+
+bitwise_and[expr_ty]:
+    | shift_expr
+
+shift_expr[expr_ty]:
+    | sum
+
+sum[expr_ty]:
+    | term
+
+term[expr_ty]:
+    | factor
+
+factor[expr_ty] (memo):
+    | power
+
+power[expr_ty]:
+    | await_primary
+
+await_primary[expr_ty] (memo):
+    | primary
+
+primary[expr_ty]:
+    | atom
+
+atom[expr_ty]:
+    | NAME
+    | 'True' { _PyAST_Constant(builtin.PyTrue, nil, EXTRA) }
+    | 'False' { _PyAST_Constant(builtin.PyFalse, nil, EXTRA) }
+    | 'None' { _PyAST_Constant(builtin.PyNone, nil, EXTRA) }
+    | &STRING strings
+    | NUMBER
+
+strings[expr_ty] (memo): a=STRING+ { _PyPegen_concatenate_strings(p, a) }
+
+star_targets[expr_ty]:
+    | a=star_target !',' { a }
+
+star_target[expr_ty] (memo):
+    | target_with_star_atom
+
+target_with_star_atom[expr_ty] (memo):
+    | star_atom
+
+star_atom[expr_ty]:
+    | a=NAME { _PyPegen_set_expr_context(p, a, Store) }
